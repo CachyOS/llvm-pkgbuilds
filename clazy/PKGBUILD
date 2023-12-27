@@ -3,7 +3,7 @@
 
 pkgname=clazy
 pkgver=1.11
-pkgrel=4
+pkgrel=6
 pkgdesc='Qt oriented code checker based on clang framework'
 url='https://www.kdab.com/'
 license=(GPL2)
@@ -11,17 +11,20 @@ depends=(clang)
 makedepends=(cmake llvm)
 arch=(x86_64)
 source=(https://download.kde.org/stable/$pkgname/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig}
-        https://github.com/KDE/clazy/commit/20fca52da739ebef.patch
-        https://github.com/KDE/clazy/commit/a05ac7eb6f6198c3.patch)
+	clazy-clang-15-support.patch
+	clazy-clang-16-support.patch
+	clazy-clang-17-support.patch)
 sha256sums=('66165df33be8785218720c8947aa9099bae6d06c90b1501953d9f95fdfa0120a'
             'SKIP'
-            '652854327c1bd48f1e7080ce834dba3fb37d8a8b1d21ebaa5c70be816d8164af'
-            'd18281a06a4fd27a90f50aa38afebd6e6d47b281382697947336b120e1013d58')
+            '2f25e5e22e08abe2539429cbf398c1c5abbe4828daae9386fff1bb6dbebaac75'
+            '67cbbee74c2e4d1ef7f50e0de3d62582386f29171a6f6b27dc41afff1787a540'
+            'adee5b1785423564846aaaa222d81686b55605d4a987f1d1c5816686a480e912')
 validpgpkeys=(949014B23D24354DFD548E5457416A0ADCEF0EFE) # Sergio Martins <sergio.martins@kdab.com>
 
 prepare() {
-  patch -d $pkgname-$pkgver -p1 < 20fca52da739ebef.patch # Fix build with LLVM 15
-  patch -d $pkgname-$pkgver -p1 < a05ac7eb6f6198c3.patch # Fix build with LLVM 16
+  patch -d $pkgname-$pkgver -p1 < clazy-clang-15-support.patch # Fix build with LLVM 15
+  patch -d $pkgname-$pkgver -p1 < clazy-clang-16-support.patch # Fix build with LLVM 16
+  patch -d $pkgname-$pkgver -p1 < clazy-clang-17-support.patch # Fix build with LLVM 17
 }
 
 build() {

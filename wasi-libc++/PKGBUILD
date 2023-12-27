@@ -2,8 +2,8 @@
 
 pkgbase=wasi-libc++
 pkgname=(wasi-libc++ wasi-libc++abi)
-pkgver=16.0.6
-pkgrel=1
+pkgver=17.0.6
+pkgrel=2
 arch=('any')
 url='https://libcxx.llvm.org/'
 license=('custom:Apache 2.0 with LLVM Exception')
@@ -32,9 +32,9 @@ build() {
   # Build options are derived from here https://github.com/WebAssembly/wasi-sdk/blob/main/Makefile
   # remove compiler options not supported by the wasm32-wasi target
   export CFLAGS="$(echo $CFLAGS | sed "s/-mtune=generic//;
-  s/-fstack-clash-protection//; s/-fcf-protection//; s/-fexceptions//")"
+  s/-fstack-clash-protection//; s/-fcf-protection//; s/-fexceptions//; s/-march=x86-64-v3//")"
   export CXXFLAGS="$(echo $CXXFLAGS | sed "s/-mtune=generic//;
-  s/-fstack-clash-protection//; s/-fcf-protection//; s/-fexceptions//")"
+  s/-fstack-clash-protection//; s/-fcf-protection//; s/-fexceptions//; s/-march=x86-64-v3//")"
 
   cmake -B build -G Ninja \
     -DCMAKE_C_COMPILER_WORKS=ON \
@@ -150,3 +150,4 @@ package_wasi-libc++abi() {
   install -Dm0644 llvm/libcxxabi/CREDITS.TXT "${pkgdir}"/usr/share/licenses/${pkgname}/CREDITS
   install -Dm0644 llvm/libcxxabi/LICENSE.TXT "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
 }
+

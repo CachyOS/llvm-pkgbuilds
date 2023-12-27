@@ -1,18 +1,35 @@
 # Maintainer: Felix Yan <felixonmars@archlinux.org>
 # Maintainer: Bruno Pagani <archange@archlinux.org>
 
+## arch is currently on newer tag (vulkan-sdk-1.3.268.0). maybe should update also
+
 _pkg=SPIRV-Headers
 pkgname=spirv-headers
 epoch=1
-pkgver=1.3.250.1
-pkgrel=1
+pkgver=1.3.261.1
+pkgrel=3
 pkgdesc="SPIR-V Headers"
 arch=(any)
 url="https://www.khronos.org/registry/spir-v/"
 license=(MIT)
 makedepends=(cmake)
-source=(https://github.com/KhronosGroup/SPIRV-Headers/archive/refs/tags/sdk-${pkgver}/${pkgname}-${pkgver}.tar.gz)
+source=(https://github.com/KhronosGroup/SPIRV-Headers/archive/refs/tags/sdk-${pkgver}/${pkgname}-${pkgver}.tar.gz
+	#9b527c0fb60124936d0906d44803bec51a0200fb.patch
+        #https://github.com/KhronosGroup/SPIRV-Headers/commit/b8b9eb8640c8c0107ba580fbcb10f969022ca32c.patch
+  	#https://github.com/KhronosGroup/SPIRV-Headers/commit/a8af2ce341cfd73a44a37bf62642a2cdf45938df.patch
+  	#llvm17.patch::https://github.com/KhronosGroup/SPIRV-Headers/compare/sdk-1.3.261.1..79743b899fde5c954897b2694291002626358fac.patch
+  	llvm17.patch::https://github.com/KhronosGroup/SPIRV-Headers/compare/sdk-1.3.261.1..38f39dae5baaa24431b24ac659054ebe972fa1e6.patch
+)
 sha512sums=('ce48d6655a15bdc969cf31376d93ddf3225ae5d2a55d47bdae2219a79c6e1f6f90b4eae1ab8df7309287e3dab32567559efd7bb779bb9d59651be9f5ccfd816e')
+
+prepare() {
+  cd ${_pkg}-sdk-${pkgver}
+
+  #patch -Np1 -i ../9b527c0fb60124936d0906d44803bec51a0200fb.patch
+  #patch -Np1 -i ../b8b9eb8640c8c0107ba580fbcb10f969022ca32c.patch
+  #patch -Np1 -i ../a8af2ce341cfd73a44a37bf62642a2cdf45938df.patch
+  patch -Np1 -i ../llvm17.patch
+}
 
 build() {
   cmake -B build -S ${_pkg}-sdk-${pkgver} -DCMAKE_INSTALL_PREFIX=/usr
@@ -23,3 +40,4 @@ package() {
   make -C build DESTDIR="${pkgdir}" install
   install -Dm644 ${_pkg}-sdk-${pkgver}/LICENSE -t "${pkgdir}"/usr/share/licenses/${pkgname}/
 }
+

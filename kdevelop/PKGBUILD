@@ -3,26 +3,26 @@
 # Contributor: Giovanni Scafora <giovanni@archlinux.org>
 
 pkgname=kdevelop
-pkgver=23.04.3
-_clangver=16.0.6
+pkgver=23.08.4
+_clangver=17.0.6
 pkgrel=2
 pkgdesc='C++ IDE using KDE technologies'
 arch=(x86_64)
 url='http://www.kdevelop.org/'
 license=(GPL)
-depends=(clang=$_clangver libksysguard kitemmodels knotifyconfig ktexteditor grantlee libkomparediff2 kcmutils threadweaver)
-makedepends=(extra-cmake-modules kdoctools kdevelop-pg-qt llvm qt5-tools plasma-framework krunner okteta boost purpose subversion astyle)
+depends=(clang=$_clangver libksysguard kitemmodels5 knotifyconfig5 ktexteditor5 grantlee libkomparediff2 kcmutils5 threadweaver5)
+makedepends=(extra-cmake-modules kdoctools5 kdevelop-pg-qt llvm qt5-tools plasma-framework5 krunner5 okteta boost purpose5 subversion astyle)
 optdepends=('konsole: embedded terminal'
             'git: Git support' 'subversion: SVN support'
-            'gdb: GNU debugger support' 'lldb: LLDB debugger support'
+            'gdb: GNU debugger support' 'lldb-mi: LLDB debugger support'
             'qt5-doc: Qt documentation integration'
             'cmake: cmake integration'
             'kate: for additional plugins'
             'meson: meson integration'
             'qt5-tools: qthelp plugin'
             'okteta: GNU debugger support'
-            'plasma-framework: for the plasma addons'
-            'purpose: patch review plugin'
+            'plasma-framework5: for the plasma addons'
+            'purpose5: patch review plugin'
             'astyle: astyle plugin'
             'cppcheck: code analyzer' 'heaptrack: memory profiler'
             'clazy: clazy analyzer plugin'
@@ -31,7 +31,8 @@ conflicts=(kdevelop-qmljs kdevplatform)
 replaces=(kdevelop-qmljs kdevplatform kdevelop-clang-tidy)
 groups=(kde-applications kdevelop)
 source=(https://download.kde.org/stable/release-service/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig}
-        https://invent.kde.org/kdevelop/kdevelop/-/commit/8ca40a64.patch)
+        https://invent.kde.org/kdevelop/kdevelop/-/commit/8ca40a64.patch
+	https://invent.kde.org/kdevelop/kdevelop/-/commit/9e8b3a03.patch)
 sha256sums=('9b38cfba8c3040b125571c1d77d53b45cd6f663b7c4650105aa4f1d3a12d3854'
             'SKIP'
             '7c84229c8787736a96cbe624f78fd2d0bdf20fb714832885725f7673ab614d44')
@@ -40,8 +41,9 @@ validpgpkeys=(CA262C6C83DE4D2FB28A332A3A6A4DB839EAA6D7  # Albert Astals Cid <aac
               D81C0CB38EB725EF6691C385BB463350D6EF31EF) # Heiko Becker <heiko.becker@kde.org>
 
 prepare() {
-  patch -d $pkgname-$pkgver -p1 < 8ca40a64.patch # Fix build with astyle 3.3
+  patch -d $pkgname-$pkgver -p1 < 9e8b3a03.patch # Port LLDB support to Python 3
 }
+
 
 build() {
   cmake -B build -S $pkgname-$pkgver \

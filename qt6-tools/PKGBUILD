@@ -3,20 +3,30 @@
 # Contributor: Andrea Scarpino <andrea@archlinux.org>
 
 pkgname=qt6-tools
-_qtver=6.5.2
+_qtver=6.6.1
 pkgver=${_qtver/-/}
 pkgrel=2
 arch=(x86_64)
 url='https://www.qt.io'
 license=(GPL3 LGPL3 FDL custom)
 pkgdesc='A cross-platform application and UI framework (Development Tools, QtHelp)'
-depends=(qt6-base)
-makedepends=(cmake ninja qt6-declarative clang llvm) # litehtml
-optdepends=('qt6-declarative: for qdoc and lupdate' 'clang: for qdoc and lupdate') # 'litehtml: for assistant'
+depends=(gcc-libs
+         glibc
+         qt6-base
+         zstd)
+makedepends=(clang
+             cmake
+             llvm
+             ninja
+             qt6-declarative)
+           # litehtml
+optdepends=('clang: for qdoc and lupdate'
+            'qt6-declarative: for qdoc and lupdate')
+          # 'litehtml: for assistant'
 groups=(qt6)
 _pkgfn=${pkgname/6-/}-everywhere-src-$_qtver
 source=(https://download.qt.io/official_releases/qt/${pkgver%.*}/$_qtver/submodules/$_pkgfn.tar.xz)
-sha256sums=('551ffb22751d8fd4d88e9ebd55b9131f4ca55341ee497fdbbba4da8d10d94341')
+sha256sums=('4939105a7345ab4e19e7caee8654a836e65bd41910359623e0f233f3aff0914a')
 
 prepare() {
 # Fix build with system litehtml
@@ -43,3 +53,4 @@ package() {
   install -d "$pkgdir"/usr/share/licenses
   ln -s /usr/share/licenses/qt6-base "$pkgdir"/usr/share/licenses/$pkgname
 }
+

@@ -8,7 +8,6 @@ pkgname=(
   'lib32-vulkan-mesa-layers'
   'lib32-opencl-clover-mesa'
   'lib32-opencl-rusticl-mesa'
-  'lib32-vulkan-intel'
   'lib32-vulkan-radeon'
   'lib32-vulkan-swrast'
   'lib32-vulkan-virtio'
@@ -16,13 +15,13 @@ pkgname=(
   'lib32-mesa-vdpau'
   'lib32-mesa'
 )
-pkgver=23.1.6
+pkgver=23.3.1
 pkgrel=2
 epoch=1
 pkgdesc="An open-source implementation of the OpenGL specification (32-bit)"
 url="https://www.mesa3d.org/"
 arch=('x86_64')
-license=('custom')
+license=('MIT AND BSD-3-Clause AND SGI-B-2.0')
 makedepends=(
   'lib32-clang'
   'lib32-expat'
@@ -46,9 +45,11 @@ makedepends=(
   'lib32-systemd'
   'lib32-vulkan-icd-loader'
   'lib32-wayland'
+  'lib32-xcb-util-keysyms'
   'lib32-zstd'
 
   # shared between mesa and lib32-mesa
+  'rustup'
   'clang'
   'cmake'
   'elfutils'
@@ -63,6 +64,19 @@ makedepends=(
 )
 source=(
   https://mesa.freedesktop.org/archive/mesa-${pkgver}.tar.xz{,.sig}
+  0001-radeonsi-prefix-function-with-si_-to-prevent-name-co.patch
+  fix-build-llvm17-new.patch
+  https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/24000.patch
+  https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/24879.patch
+  https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/13449.patch
+  https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/24140.patch
+
+  https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/21263.patch
+  https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/21125.patch
+  https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/21262.patch
+  https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/21124.patch
+  https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/22021.patch
+  https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/25165.patch
   LICENSE
 )
 sha256sums=('f4c7fd8e7b472a88da7d83e9a48f6f3bd17d4ea2cc4386f7231b796f3964157a'
@@ -80,9 +94,37 @@ validpgpkeys=('8703B6700E7EE06D7A39B8D6EDAE37B02CEB490D'  # Emil Velikov <emil.l
 
 prepare() {
   cd mesa-$pkgver
+  #patch -Np1 -i ../fix-build-llvm17-new.patch # Fix for bulding with LLVM 17
+  #patch -Np1 -i ../24000.patch
+  #patch -Np1 -i ../24879.patch
+  #patch -Np1 -i ../13449.patch
+  #patch -Np1 -i ../24140.patch
+  
+  #patch -Np1 -i ../21263.patch
+  #patch -Np1 -i ../21125.patch
+  #patch -Np1 -i ../21262.patch
+  #patch -Np1 -i ../21124.patch
+  #patch -Np1 -i ../22021.patch
+  #patch -Np1 -i ../25165.patch
+
+  # https://bugs.archlinux.org/task/79831
+  # https://gitlab.freedesktop.org/mesa/mesa/-/issues/9889#note_2113953
+  #patch -Np1 -i ../0001-radeonsi-prefix-function-with-si_-to-prevent-name-co.patch
+  
+  # Include package release in version string so Chromium invalidates
+  # its GPU cache; otherwise it can cause pages to render incorrectly.
+  # https://bugs.launchpad.net/ubuntu/+source/chromium-browser/+bug/2020604
+  echo "$pkgver-arch$epoch.$pkgrel" >VERSION
 }
 
 build() {
+  if ! rustc --version | grep 1.74  >/dev/null 2>&1; then
+    echo "Installing rust compiler…"
+    rustup toolchain install 1.74
+    rustup default 1.74
+  fi
+  rustup target add i686-unknown-linux-gnu
+
   local meson_options=(
     --cross-file lib32
     -D android-libbacktrace=disabled
@@ -103,7 +145,7 @@ build() {
     -D gles2=enabled
     -D glvnd=true
     -D glx=dri
-    -D intel-clc=enabled
+    -D intel-clc=disabled
     -D libunwind=enabled
     -D llvm=enabled
     -D lmsensors=enabled
@@ -114,8 +156,8 @@ build() {
     -D shared-glapi=enabled
     -D valgrind=disabled
     -D video-codecs=vc1dec,h264dec,h264enc,h265dec,h265enc
-    -D vulkan-drivers=amd,intel,intel_hasvk,swrast,virtio-experimental
-    -D vulkan-layers=device-select,intel-nullhw,overlay
+    -D vulkan-drivers=amd,swrast,virtio
+    -D vulkan-layers=device-select,overlay
   )
 
   # Build only minimal debug info to reduce size
@@ -126,13 +168,6 @@ build() {
 
   arch-meson mesa-$pkgver build "${meson_options[@]}"
   meson configure build # Print config
-
-  # Evil: Hack build to make proc-macro crate native
-  sed -e '/^rule rust_COMPILER$/irule rust_HACK\n command = rustc -C linker=gcc $ARGS $in\n deps = gcc\n depfile = $targetdep\n description = Compiling native Rust source $in\n' \
-      -e '/^build src\/gallium\/frontends\/rusticl\/librusticl_proc_macros\.so:/s/rust_COMPILER/rust_HACK/' \
-      -e '/^ LINK_ARGS =/s/ src\/gallium\/frontends\/rusticl\/librusticl_proc_macros\.so//' \
-      -i build/build.ninja
-
   meson compile -C build
 
   # fake installation to be seperated into packages
@@ -222,25 +257,6 @@ package_lib32-opencl-rusticl-mesa() {
   install -m644 -Dt "${pkgdir}/usr/share/licenses/${pkgname}" LICENSE
 }
 
-package_lib32-vulkan-intel() {
-  pkgdesc="Intel's Vulkan mesa driver (32-bit)"
-  depends=(
-    'lib32-libdrm'
-    'lib32-libx11'
-    'lib32-libxshmfence'
-    'lib32-systemd'
-    'lib32-wayland'
-    'lib32-zstd'
-  )
-  optdepends=('lib32-vulkan-mesa-layers: additional vulkan layers')
-  provides=('lib32-vulkan-driver')
-
-  _install fakeinstall/usr/share/vulkan/icd.d/intel_*.json
-  _install fakeinstall/$_libdir/libvulkan_intel*.so
-
-  install -m644 -Dt "${pkgdir}/usr/share/licenses/${pkgname}" LICENSE
-}
-
 package_lib32-vulkan-radeon() {
   pkgdesc="Radeon's Vulkan mesa driver (32-bit)"
   depends=(
@@ -251,6 +267,7 @@ package_lib32-vulkan-radeon() {
     'lib32-llvm-libs'
     'lib32-systemd'
     'lib32-wayland'
+    'lib32-xcb-util-keysyms'
     'lib32-zstd'
 
     'vulkan-radeon'
@@ -275,6 +292,7 @@ package_lib32-vulkan-swrast() {
     'lib32-llvm-libs'
     'lib32-systemd'
     'lib32-wayland'
+    'lib32-xcb-util-keysyms'
     'lib32-zstd'
   )
   optdepends=('lib32-vulkan-mesa-layers: additional vulkan layers')
@@ -296,6 +314,7 @@ package_lib32-vulkan-virtio() {
     'lib32-libxshmfence'
     'lib32-systemd'
     'lib32-wayland'
+    'lib32-xcb-util-keysyms'
     'lib32-zstd'
   )
   optdepends=('lib32-vulkan-mesa-layers: additional vulkan layers')
@@ -361,8 +380,6 @@ package_lib32-mesa() {
     'mesa'
   )
   optdepends=(
-    'lib32-libva-mesa-driver: for accelerated video playback'
-    'lib32-mesa-vdpau: for accelerated video playback'
     'opengl-man-pages: for the OpenGL API man pages'
   )
   provides=(
@@ -375,7 +392,7 @@ package_lib32-mesa() {
   rm -v fakeinstall/usr/share/drirc.d/00-mesa-defaults.conf
   rm -v fakeinstall/usr/share/glvnd/egl_vendor.d/50_mesa.json
 
-  # ati-dri, nouveau-dri, intel-dri, svga-dri, swrast, swr
+  # ati-dri, nouveau-dri, svga-dri, swrast, swr
   _install fakeinstall/$_libdir/dri/*_dri.so
 
   _install fakeinstall/$_libdir/d3d
@@ -398,3 +415,4 @@ package_lib32-mesa() {
 
   install -m644 -Dt "${pkgdir}/usr/share/licenses/${pkgname}" LICENSE
 }
+

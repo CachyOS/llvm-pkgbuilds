@@ -1,0 +1,48 @@
+# Maintainer: Daniel Bermond <dbermond@archlinux.org>
+# Maintainer: Bruno Pagani <archange@archlinux.org>
+
+pkgbase=level-zero
+pkgname=(level-zero-headers level-zero-loader)
+pkgver=1.15.1
+pkgrel=2
+pkgdesc="API for accessing low level interfaces in oneAPI platform devices"
+arch=(x86_64)
+url="https://spec.oneapi.com/versions/latest/elements/l0/source/index.html"
+license=(MIT)
+makedepends=(cmake opencl-headers)
+source=(https://github.com/oneapi-src/level-zero/archive/v${pkgver}/${pkgbase}-${pkgver}.tar.gz)
+sha256sums=('44b9cfa039625e4d9b273bebda26597a91d34c039ea22311530777ea386cfe6c')
+
+prepare() {
+  printf '%s\n' ${pkgver##*.} > ${pkgbase}-${pkgver}/VERSION_PATCH
+}
+
+build() {
+  cmake -B build -S ${pkgbase}-${pkgver} \
+    -G 'Unix Makefiles' \
+    -DCMAKE_BUILD_TYPE=None \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -Wno-dev
+  cmake --build build
+}
+
+package_level-zero-headers() {
+  pkgdesc+=" (headers)"
+  #arch=(any) # Not supported for now, maybe later
+  
+  DESTDIR="${pkgdir}" cmake --install build
+  install -Dm644 ${pkgbase}-${pkgver}/LICENSE -t "${pkgdir}"/usr/share/licenses/${pkgname}
+  
+  # remove loader files
+  [ -d 'loader' ] && rm -rf loader
+  install -d loader/lib
+  mv "${pkgdir}"/usr/lib/*so* loader/lib
+}
+
+package_level-zero-loader() {
+  pkgdesc+=" (loader)"
+  depends=(gcc-libs)
+  
+  mv loader "${pkgdir}"/usr
+  install -Dm644 ${pkgbase}-${pkgver}/LICENSE -t "${pkgdir}"/usr/share/licenses/${pkgname}
+}
