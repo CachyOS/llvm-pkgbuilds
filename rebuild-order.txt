@@ -43,6 +43,7 @@ ldc
 libc++
 pocl
 sparse
+doxygen
 wasi-libc
 wasi-compiler-rt
 wasi-libc++
