@@ -2,15 +2,16 @@
 # Contributor: Jan "heftig" Steffens <jan.steffens@gmail.com>
 
 pkgname=lib32-clang
-pkgver=17.0.6
-pkgrel=2
+pkgver=18.1.8
+_pkgver=18.1.8
+pkgrel=1
 pkgdesc="C language family frontend for LLVM (32-bit)"
 arch=('x86_64')
 url="https://clang.llvm.org/"
 license=('custom:Apache 2.0 with LLVM Exception')
 depends=('lib32-llvm-libs' 'gcc-multilib')
 makedepends=('lib32-llvm' 'cmake' 'ninja' 'python')
-_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver
+_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$_pkgver
 source=($_source_base/clang-$pkgver.src.tar.xz{,.sig}
         $_source_base/clang-tools-extra-$pkgver.src.tar.xz{,.sig}
         $_source_base/llvm-$pkgver.src.tar.xz{,.sig}

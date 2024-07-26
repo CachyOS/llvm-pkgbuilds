@@ -2,8 +2,9 @@
 # Contributor: Jan "heftig" Steffens <jan.steffens@gmail.com>
 
 pkgname=compiler-rt
-pkgver=17.0.6
-pkgrel=2
+pkgver=18.1.8
+_pkgver=18.1.8
+pkgrel=1
 pkgdesc="Compiler runtime libraries for clang"
 arch=('x86_64')
 url="https://compiler-rt.llvm.org/"
@@ -11,10 +12,11 @@ license=('custom:Apache 2.0 with LLVM Exception')
 depends=('gcc-libs')
 makedepends=('llvm' 'cmake' 'ninja' 'python')
 # Build 32-bit compiler-rt libraries on x86_64 (FS#41911)
-makedepends_x86_64=('lib32-gcc-libs')
+#makedepends+=('lib32-gcc-libs')
 options=('staticlibs')
-_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver
+_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$_pkgver
 source=($_source_base/compiler-rt-$pkgver.src.tar.xz{,.sig}
+        $_source_base/llvm-$pkgver.src.tar.xz{,.sig}
         $_source_base/cmake-$pkgver.src.tar.xz{,.sig})
 sha256sums=('353832c66cce60931ea0413b3c071faad59eefa70d02c97daa8978b15e4b25b7'
             'SKIP'
@@ -29,6 +31,9 @@ prepare() {
   mkdir build
 
   #sed -i -e "s|LLVM_VERSION_SUFFIX rc|LLVM_VERSION_SUFFIX|g" CMakeLists.txt
+
+  # stop appending that to cflags, which C compiler obviously doesn't support
+  sed -i 's/append_list_if\(COMPILER_RT_HAS_NOSTDINCXX_FLAG -nostdinc++ EXTRA_FLAGS\)/set\(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -nostdinc++"\)/g' lib/profile/CMakeLists.txt
 }
 
 build() {
@@ -39,6 +44,10 @@ build() {
     -DCMAKE_BUILD_TYPE=Release
     -DCMAKE_INSTALL_PREFIX=/usr
     -DCMAKE_SKIP_RPATH=ON
+    -DLLVM_MAIN_SRC_DIR="$srcdir/llvm-$pkgver.src"
+    -DCOMPILER_RT_DEFAULT_TARGET_ONLY=ON
+    -DCOMPILER_RT_DEFAULT_TARGET_ARCH="x86_64"
+    -DCMAKE_C_COMPILER_TARGET="x86_64"
     -DCOMPILER_RT_INSTALL_PATH=/usr/lib/clang/$pkgver
   )
   cmake .. "${cmake_args[@]}"
@@ -51,8 +60,8 @@ package() {
   DESTDIR="$pkgdir" ninja install
   install -Dm644 ../LICENSE.TXT "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 
-  install -d "$pkgdir/usr/lib/clang/17"
-  ln -srfv "$pkgdir/usr/lib/clang/$pkgver/lib" "$pkgdir/usr/lib/clang/17/lib"
+  install -d "$pkgdir/usr/lib/clang/18"
+  ln -srfv "$pkgdir/usr/lib/clang/$pkgver/lib" "$pkgdir/usr/lib/clang/18/lib"
 }
 
 # vim:set ts=2 sw=2 et:

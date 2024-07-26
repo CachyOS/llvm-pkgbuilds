@@ -1,0 +1,31 @@
+diff --git a/src/FunctionUtils.h b/src/FunctionUtils.h
+index 7115327a..a5fc46c5 100644
+--- a/src/FunctionUtils.h
++++ b/src/FunctionUtils.h
+@@ -73,6 +73,10 @@ inline bool classImplementsMethod(const clang::CXXRecordDecl *record, const clan
+ 
+     llvm::StringRef methodName = clazy::name(method);
+     for (auto m : record->methods()) {
++#if LLVM_VERSION_MAJOR >= 18
++        if (!m->isPureVirtual() && clazy::name(m) == methodName && parametersMatch(m, method))
++#else
+         if (!m->isPure() && clazy::name(m) == methodName && parametersMatch(m, method))
++#endif
+             return true;
+     }
+diff --git a/src/checks/level2/virtual-call-ctor.cpp b/src/checks/level2/virtual-call-ctor.cpp
+index 1f1cb28b..caf809b1 100644
+--- a/src/checks/level2/virtual-call-ctor.cpp
++++ b/src/checks/level2/virtual-call-ctor.cpp
+@@ -107,7 +107,11 @@ SourceLocation VirtualCallCtor::containsVirtualCall(clang::CXXRecordDecl *classD
+         }
+ 
+         if (memberDecl->getParent() == classDecl) {
++#if LLVM_VERSION_MAJOR >= 18
++            if (memberDecl->isPureVirtual()) {
++#else
+             if (memberDecl->isPure()) {
++#endif
+                 return clazy::getLocStart(callExpr);
+             }
+             if (containsVirtualCall(classDecl, memberDecl->getBody(), processedStmts).isValid()) {

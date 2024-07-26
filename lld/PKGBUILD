@@ -2,16 +2,17 @@
 # Contributor: Jan "heftig" Steffens <jan.steffens@gmail.com>
 
 pkgname=lld
-pkgver=17.0.6
-pkgrel=2
+pkgver=18.1.8
+_pkgver=18.1.8
+pkgrel=1
 pkgdesc="Linker from the LLVM project"
 arch=('x86_64')
 url="https://lld.llvm.org/"
 license=('custom:Apache 2.0 with LLVM Exception')
 depends=('llvm-libs')
-makedepends=('llvm' 'cmake' 'ninja' 'python-sphinx')
+makedepends=('llvm' 'cmake' 'ninja' 'python-sphinx' 'python-myst-parser')
 options=('!lto') # LTO causes a couple of test failures
-_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver
+_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$_pkgver
 source=($_source_base/lld-$pkgver.src.tar.xz{,.sig}
         $_source_base/llvm-$pkgver.src.tar.xz{,.sig}
         $_source_base/libunwind-$pkgver.src.tar.xz{,.sig}

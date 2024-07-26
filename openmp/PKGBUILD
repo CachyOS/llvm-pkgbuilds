@@ -1,8 +1,9 @@
 # Maintainer: Evangelos Foutras <evangelos@foutrelis.com>
 
 pkgname=openmp
-pkgver=17.0.6
-pkgrel=2
+pkgver=18.1.8
+_pkgver=18.1.8
+pkgrel=1
 pkgdesc="LLVM OpenMP Runtime Library"
 arch=('x86_64')
 url="https://openmp.llvm.org/"
@@ -12,8 +13,9 @@ makedepends=('llvm' 'clang' 'cmake' 'ninja')
 optdepends=('cuda: offloading to NVIDIA GPUs'
             'hsa-rocr: offloading to AMD GPUs')
 options=('!lto') # https://bugzilla.redhat.com/show_bug.cgi?id=1988155
-_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver
+_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$_pkgver
 source=($_source_base/openmp-$pkgver.src.tar.xz{,.sig}
+        $_source_base/llvm-$pkgver.src.tar.xz{,.sig}
         $_source_base/cmake-$pkgver.src.tar.xz{,.sig}
         $_source_base/third-party-$pkgver.src.tar.xz{,.sig})
 sha256sums=('3f168d38e7a37b928dcb94b33ce947f75d81eef6fa6a4f9d16b6dc5511c07358'
@@ -37,6 +39,7 @@ build() {
     -G Ninja
     -DCMAKE_BUILD_TYPE=Release
     -DCMAKE_INSTALL_PREFIX=/usr
+    -DLLVM_MAIN_SRC_DIR="$srcdir/llvm-$pkgver.src"
     -DLIBOMP_INSTALL_ALIASES=OFF
   )
   cmake .. "${cmake_args[@]}"

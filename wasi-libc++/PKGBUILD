@@ -2,13 +2,14 @@
 
 pkgbase=wasi-libc++
 pkgname=(wasi-libc++ wasi-libc++abi)
-pkgver=17.0.6
-pkgrel=2
+pkgver=18.1.8
+_pkgver=18.1.8
+pkgrel=1
 arch=('any')
 url='https://libcxx.llvm.org/'
 license=('custom:Apache 2.0 with LLVM Exception')
 makedepends=('cmake' 'ninja' 'python' 'clang' 'llvm' 'wasi-libc' 'wasi-compiler-rt' 'lld')
-source=(https://github.com/llvm/llvm-project/releases/download/llvmorg-${pkgver}/llvm-project-${pkgver}.src.tar.xz{,.sig}
+source=(https://github.com/llvm/llvm-project/releases/download/llvmorg-${_pkgver}/llvm-project-${pkgver}.src.tar.xz{,.sig}
         WASI.cmake
         wasi-toolchain.cmake)
 b2sums=('95192d39cbd2914e5609db365965f1c00bfea6c2d653b3996bd2acef8a2b37e37f6fc8a9d2b65711ad72657e0ef52c42f733053cf65051e7822f27396c30406d'
@@ -32,9 +33,9 @@ build() {
   # Build options are derived from here https://github.com/WebAssembly/wasi-sdk/blob/main/Makefile
   # remove compiler options not supported by the wasm32-wasi target
   export CFLAGS="$(echo $CFLAGS | sed "s/-mtune=generic//;
-  s/-fstack-clash-protection//; s/-fcf-protection//; s/-fexceptions//; s/-march=x86-64-v3//")"
+  s/-fstack-clash-protection//; s/-fcf-protection//; s/-mpclmul//; s/-fexceptions//; s/-march=x86-64-v3//")"
   export CXXFLAGS="$(echo $CXXFLAGS | sed "s/-mtune=generic//;
-  s/-fstack-clash-protection//; s/-fcf-protection//; s/-fexceptions//; s/-march=x86-64-v3//")"
+  s/-fstack-clash-protection//; s/-fcf-protection//; s/-mpclmul//; s/-fexceptions//; s/-march=x86-64-v3//")"
 
   cmake -B build -G Ninja \
     -DCMAKE_C_COMPILER_WORKS=ON \
@@ -65,6 +66,7 @@ build() {
     -DLIBCXXABI_HAS_EXTERNAL_THREAD_API:BOOL=OFF \
     -DLIBCXXABI_BUILD_EXTERNAL_THREAD_LIBRARY:BOOL=OFF \
     -DLIBCXXABI_HAS_WIN32_THREAD_API:BOOL=OFF \
+    -DLIBCXXABI_USE_LLVM_UNWINDER=OFF \
     -DWASI_SDK_PREFIX=/usr \
     -DUNIX:BOOL=ON \
     -DCMAKE_SYSROOT=/usr/share/wasi-sysroot \

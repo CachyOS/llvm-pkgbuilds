@@ -1,16 +1,18 @@
 # Maintainer: Frederik Schwan <freswa at archlinux dot org>
 
 pkgname=wasi-compiler-rt
-pkgver=17.0.6
-pkgrel=2
+pkgver=18.1.8
+_pkgver=18.1.8
+pkgrel=1
 pkgdesc='WASI LLVM compiler runtime'
 arch=('any')
 url='https://compiler-rt.llvm.org/'
 license=('custom:Apache 2.0 with LLVM Exception')
 depends=('wasi-libc')
 makedepends=('cmake' 'ninja' 'llvm' 'clang' 'lld')
-source=(https://github.com/llvm/llvm-project/releases/download/llvmorg-${pkgver}/compiler-rt-${pkgver}.src.tar.xz{,.sig}
-        https://github.com/llvm/llvm-project/releases/download/llvmorg-${pkgver}/cmake-$pkgver.src.tar.xz{,.sig}
+source=(https://github.com/llvm/llvm-project/releases/download/llvmorg-${_pkgver}/compiler-rt-${pkgver}.src.tar.xz{,.sig}
+        https://github.com/llvm/llvm-project/releases/download/llvmorg-${_pkgver}/cmake-$pkgver.src.tar.xz{,.sig}
+        https://github.com/llvm/llvm-project/releases/download/llvmorg-${_pkgver}/llvm-$pkgver.src.tar.xz{,.sig}
         WASI.cmake
         wasi-toolchain.cmake)
 b2sums=('95780ea123a2bb3e8b697c9596ee2e9596859fd3747f013604936789893d931b5df66bff2feb12d2f984c52bd28e2c8f81180b100e6068a492c9b4571f25a4c4'
@@ -49,6 +51,7 @@ build() {
     -DCOMPILER_RT_DEFAULT_TARGET_ONLY=On \
     -DCOMPILER_RT_OS_DIR=wasi \
     -DWASI_SDK_PREFIX=/usr \
+    -DLLVM_MAIN_SRC_DIR="$srcdir/llvm-$pkgver.src" \
     -DCMAKE_C_FLAGS="-fno-exceptions --sysroot=/usr/share/wasi-sysroot" \
     -DCMAKE_INSTALL_PREFIX=/usr/lib/clang/${pkgver}/ \
     compiler-rt-${pkgver}.src/lib/builtins

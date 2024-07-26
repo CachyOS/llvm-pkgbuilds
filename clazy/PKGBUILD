@@ -3,17 +3,23 @@
 
 pkgname=clazy
 pkgver=1.11
-pkgrel=6
+pkgrel=10
 pkgdesc='Qt oriented code checker based on clang framework'
 url='https://www.kdab.com/'
-license=(GPL2)
-depends=(clang)
-makedepends=(cmake llvm)
+license=(GPL-2.0-or-later)
+depends=(clang
+         gcc-libs
+         glibc
+         llvm-libs
+         sh)
+makedepends=(cmake
+             llvm)
 arch=(x86_64)
 source=(https://download.kde.org/stable/$pkgname/$pkgver/src/$pkgname-$pkgver.tar.xz{,.sig}
 	clazy-clang-15-support.patch
 	clazy-clang-16-support.patch
-	clazy-clang-17-support.patch)
+	clazy-clang-17-support.patch
+	clazy-clang-18-support.patch)
 sha256sums=('66165df33be8785218720c8947aa9099bae6d06c90b1501953d9f95fdfa0120a'
             'SKIP'
             '2f25e5e22e08abe2539429cbf398c1c5abbe4828daae9386fff1bb6dbebaac75'
@@ -25,6 +31,7 @@ prepare() {
   patch -d $pkgname-$pkgver -p1 < clazy-clang-15-support.patch # Fix build with LLVM 15
   patch -d $pkgname-$pkgver -p1 < clazy-clang-16-support.patch # Fix build with LLVM 16
   patch -d $pkgname-$pkgver -p1 < clazy-clang-17-support.patch # Fix build with LLVM 17
+  patch -d $pkgname-$pkgver -p1 < clazy-clang-18-support.patch # Fix build with LLVM 18
 }
 
 build() {

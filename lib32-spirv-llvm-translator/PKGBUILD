@@ -3,22 +3,22 @@
 
 _srcname=SPIRV-LLVM-Translator
 pkgname=lib32-${_srcname,,}
-pkgver=17.0.0.r1844+17174acb
-pkgrel=2
+pkgver=18.1.1
+pkgrel=1
 pkgdesc="Tool and a library for bi-directional translation between SPIR-V and LLVM IR"
 arch=(x86_64)
 url="https://github.com/KhronosGroup/SPIRV-LLVM-Translator"
-license=(custom)
+license=(LicenseRef-custom)
 depends=(lib32-llvm-libs lib32-spirv-tools ${pkgname#lib32-})
 makedepends=(git cmake llvm lib32-llvm spirv-headers)
 # Current point in the used LLVM branch
-_commit=17174acb0f497d031e96c366d83ea40f88f64ded
+_commit=2d31bdaccf937c7b045d6a8ea705ebb52f2aaaa8
 source=(git+${url}.git#commit=$_commit)
 sha256sums=('SKIP')
 
 #pkgver() {
 #  cd ${_srcname}
-#  printf "17.0.0.r%s+%s"  "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+#  printf "18.0.0.r%s+%s"  "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
 #}
 
 #prepare() {
@@ -30,6 +30,7 @@ build() {
   export PKG_CONFIG=i686-pc-linux-gnu-pkg-config
 
   cmake -B build -S ${_srcname} \
+    -G 'Unix Makefiles' \
     -DBUILD_SHARED_LIBS=ON \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_CXX_FLAGS:STRING=-m32 \
@@ -39,14 +40,15 @@ build() {
     -DCMAKE_SKIP_RPATH=ON \
     -DLLVM_CONFIG="/usr/bin/llvm-config32" \
     -DLLVM_INCLUDE_TESTS=OFF \
+    -DBASE_LLVM_VERSION="18.1.0" \
     -DLLVM_EXTERNAL_SPIRV_HEADERS_SOURCE_DIR=/usr/include/spirv/ \
     -DLLVM_LIBDIR_SUFFIX=32 \
     -Wno-dev
-  make -C build
+  cmake --build build
 }
 
 package() {
-  make -C build DESTDIR="${pkgdir}" install
+  DESTDIR="${pkgdir}" cmake --install build
   rm -r "${pkgdir}"/usr/{bin,include}
   install -Dm644 ${_srcname}/LICENSE.TXT -t "${pkgdir}"/usr/share/licenses/${pkgname}/
 }

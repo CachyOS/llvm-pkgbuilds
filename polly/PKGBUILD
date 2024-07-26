@@ -1,15 +1,16 @@
 # Maintainer: Evangelos Foutras <evangelos@foutrelis.com>
 
 pkgname=polly
-pkgver=17.0.6
-pkgrel=2
+pkgver=18.1.8
+_pkgver=18.1.8
+pkgrel=1
 pkgdesc="High-level loop and data-locality optimizer and optimization infrastructure for LLVM"
 arch=('x86_64')
 url="https://polly.llvm.org/"
 license=('custom:Apache 2.0 with LLVM Exception')
 depends=('gcc-libs')
-makedepends=('llvm' 'cmake' 'ninja' 'python-sphinx')
-_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver
+makedepends=('llvm' 'cmake' 'ninja' 'python-sphinx' 'python-myst-parser')
+_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$_pkgver
 source=($_source_base/polly-$pkgver.src.tar.xz{,.sig}
         $_source_base/llvm-$pkgver.src.tar.xz{,.sig}
         $_source_base/cmake-$pkgver.src.tar.xz{,.sig}

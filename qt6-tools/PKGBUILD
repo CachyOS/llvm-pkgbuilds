@@ -3,8 +3,7 @@
 # Contributor: Andrea Scarpino <andrea@archlinux.org>
 
 pkgname=qt6-tools
-_qtver=6.6.1
-pkgver=${_qtver/-/}
+pkgver=6.7.2
 pkgrel=2
 arch=(x86_64)
 url='https://www.qt.io'
@@ -16,21 +15,28 @@ depends=(gcc-libs
          zstd)
 makedepends=(clang
              cmake
+             git
+             litehtml
              llvm
              ninja
              qt6-declarative)
-           # litehtml
 optdepends=('clang: for qdoc and lupdate'
+            'litehtml: for assistant'
             'qt6-declarative: for qdoc and lupdate')
-          # 'litehtml: for assistant'
 groups=(qt6)
-_pkgfn=${pkgname/6-/}-everywhere-src-$_qtver
-source=(https://download.qt.io/official_releases/qt/${pkgver%.*}/$_qtver/submodules/$_pkgfn.tar.xz)
-sha256sums=('4939105a7345ab4e19e7caee8654a836e65bd41910359623e0f233f3aff0914a')
+_pkgfn=${pkgname/6-/}
+source=(git+https://code.qt.io/qt/$_pkgfn#tag=v$pkgver
+        git+https://code.qt.io/playground/qlitehtml)
+sha256sums=('3bfa78a1ce46c5c0e3f1bfba7c8571d1c77783da7efb4ed7bcfd896e03a2bf7c'
+            'SKIP')
 
 prepare() {
-# Fix build with system litehtml
-  sed -e '/qt_internal_set_exceptions_flags/d' -e '/qt_disable_warnings/d' -i $_pkgfn/src/assistant/CMakeLists.txt
+  cd $_pkgfn
+  git submodule init
+  git submodule set-url src/assistant/qlitehtml "$srcdir"/qlitehtml
+  git -c protocol.file.allow=always submodule update
+
+  git cherry-pick -n 46ffaed90df8c14d67b4b16fdf5e0b87ab227c88 # Fix crash in Designer
 }
 
 build() {
@@ -53,4 +59,3 @@ package() {
   install -d "$pkgdir"/usr/share/licenses
   ln -s /usr/share/licenses/qt6-base "$pkgdir"/usr/share/licenses/$pkgname
 }
-

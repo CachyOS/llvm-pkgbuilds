@@ -2,17 +2,19 @@
 # Contributor: Jan "heftig" Steffens <jan.steffens@gmail.com>
 
 pkgname=lldb
-pkgver=17.0.6
-pkgrel=2
+pkgver=18.1.8
+_pkgver=18.1.8
+pkgrel=1
 pkgdesc="Next generation, high-performance debugger"
 arch=('x86_64')
 url="https://lldb.llvm.org/"
 license=('custom:Apache 2.0 with LLVM Exception')
 depends=('llvm-libs' 'clang' 'python' 'python-six')
 makedepends=('llvm' 'cmake' 'ninja' 'swig' 'python-sphinx')
-_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver
+_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$_pkgver
 source=($_source_base/lldb-$pkgver.src.tar.xz{,.sig}
         $_source_base/cmake-$pkgver.src.tar.xz{,.sig}
+        $_source_base/llvm-$pkgver.src.tar.xz{,.sig}
         $_source_base/third-party-$pkgver.src.tar.xz{,.sig})
 sha256sums=('f64d5533661c766a2ff97062af5a0523b9e2cd56aa3d95d9624c418e120d1427'
             'SKIP'
@@ -39,6 +41,7 @@ build() {
     -DCLANG_LINK_CLANG_DYLIB=ON
     -DLLDB_USE_SYSTEM_SIX=1
     -DLLVM_ENABLE_SPHINX=ON
+    -DLLVM_MAIN_SRC_DIR="$srcdir/llvm-$pkgver.src"
     -DLLVM_LINK_LLVM_DYLIB=ON
   )
   cmake .. "${cmake_args[@]}"
@@ -52,6 +55,9 @@ package() {
   install -Dm644 ../LICENSE.TXT "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 
   install -Dm644 docs/man/lldb.1 "$pkgdir/usr/share/man/man1/lldb.1"
+
+  # remove leftover
+  rm "$pkgdir/usr/lib/libLLVMTestingSupport.a"
 
   # Compile Python scripts
   python3 -m compileall "$pkgdir"
