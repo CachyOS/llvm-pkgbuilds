@@ -1,46 +1,42 @@
-# Maintainer: Evangelos Foutras <evangelos@foutrelis.com>
+# Maintainer: Evangelos Foutras <foutrelis@archlinux.org>
 # Contributor: Jan "heftig" Steffens <jan.steffens@gmail.com>
 
 pkgname=clang
 pkgver=18.1.8
-_pkgver=18.1.8
-pkgrel=1
+pkgrel=2
 pkgdesc="C language family frontend for LLVM"
 arch=('x86_64')
 url="https://clang.llvm.org/"
-license=('custom:Apache 2.0 with LLVM Exception')
+license=('Apache-2.0 WITH LLVM-exception')
 depends=('llvm-libs' 'gcc' 'compiler-rt')
-makedepends=('llvm' 'cmake' 'ninja' 'python-sphinx' 'python-recommonmark' 'python-myst-parser')
+makedepends=('llvm' 'cmake' 'ninja' 'python-sphinx' 'python-myst-parser')
 optdepends=('openmp: OpenMP support in clang with -fopenmp'
             'python: for scan-view and git-clang-format'
             'llvm: referenced by some clang headers')
 provides=("clang-analyzer=$pkgver" "clang-tools-extra=$pkgver")
 conflicts=('clang-analyzer' 'clang-tools-extra')
 replaces=('clang-analyzer' 'clang-tools-extra')
-_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$_pkgver
+_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver
 source=($_source_base/clang-$pkgver.src.tar.xz{,.sig}
         $_source_base/clang-tools-extra-$pkgver.src.tar.xz{,.sig}
         $_source_base/llvm-$pkgver.src.tar.xz{,.sig}
         $_source_base/cmake-$pkgver.src.tar.xz{,.sig}
-        $_source_base/test-suite-$pkgver.src.tar.xz{,.sig}
-        $pkgname-structured-bindings-r1.patch::https://github.com/llvm/llvm-project/commit/127bf4438542.patch
-        $pkgname-bitfield-value-capture.patch::https://github.com/llvm/llvm-project/commit/a1a71b7dc97b.patch
-        enable-fstack-protector-strong-by-default.patch
-        $_source_base/third-party-$pkgver.src.tar.xz{,.sig})
-sha256sums=('a6b673ef15377fb46062d164e8ddc4d05c348ff8968f015f7f4af03f51000067'
+        $_source_base/third-party-$pkgver.src.tar.xz{,.sig}
+        clangd-handle-missing-ending-brace.patch::https://github.com/llvm/llvm-project/commit/9d1dada57741.patch
+        enable-fstack-protector-strong-by-default.patch)
+sha256sums=('5724fe0a13087d5579104cedd2f8b3bc10a212fb79a0fcdac98f4880e19f4519'
             'SKIP'
-            '809a2ef46d46be3b83ca389356404ac041fa6d8f5496cb02ec35d252afb64fd1'
+            'e58877fcd95ed106824bd1a31276dd17ed0c53adcd60ca75289eac0654f0a7f1'
             'SKIP'
-            '4ad8b2cc8003c86d0078d15d987d84e3a739f24aae9033865c027abae93ee7a4'
+            'f68cf90f369bc7d0158ba70d860b0cb34dbc163d6ff0ebc6cfa5e515b9b2e28d'
             'SKIP'
-            '8986f29b634fdaa9862eedda78513969fe9788301c9f2d938f4c10a3e7a3e7ea'
+            '59badef592dd34893cd319d42b323aaa990b452d05c7180ff20f23ab1b41e837'
             'SKIP'
-            '640ac4858c68cc6d52226afe01a67ad017f95511636b631d826b791c5b11a47e'
-            '6092fa872e2a706de12d1efb0626a4e9ef9854014edc68edb5ebac2ad27e2d9f'
-            'd432e706fd99e7817ea0cbb02795918a781a11e4f5e6d304d53fffec9856b6f4'
-            '7a9ce949579a3b02d4b91b6835c4fb45adc5f743007572fb0e28e6433e48f3a5')
-validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A'  # Tom Stellard <tstellar@redhat.com>
-              'D574BD5D1D0E98895E3BF90044F2485E45D59042') # Tobias Hieta <tobias@hieta.se>
+            'b76b810f3d3dc5d08e83c4236cb6e395aa9bd5e3ea861e8c319b216d093db074'
+            'SKIP'
+            '0d4dc477f5a28f9f16639dc094b6d9bc14228d5de771547394799d2d5f8cd1df'
+            'ef319e65f927718e1d3b1a23c480d686b1d292e2a0bf27229540964f9734117a')
+validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A') # Tom Stellard <tstellar@redhat.com>
 
 # Utilizing LLVM_DISTRIBUTION_COMPONENTS to avoid
 # installing static libraries; inspired by Gentoo
@@ -49,9 +45,6 @@ _get_distribution_components() {
   ninja -t targets | grep -Po 'install-\K.*(?=-stripped:)' | while read -r target; do
     case $target in
       clang-libraries|distribution)
-        continue
-        ;;
-      clang-tidy-headers)
         continue
         ;;
       clang|clangd|clang-*)
@@ -65,13 +58,15 @@ _get_distribution_components() {
 }
 
 prepare() {
-  mv cmake{-$pkgver.src,}
-  mv third-party{-$pkgver.src,}
-  mv test-suite{-$pkgver.src,}
+  rename -v -- "-$pkgver.src" '' {cmake,third-party}-$pkgver.src
   cd clang-$pkgver.src
   mkdir build
   mv "$srcdir/clang-tools-extra-$pkgver.src" tools/extra
   patch -Np2 -i ../enable-fstack-protector-strong-by-default.patch
+
+  # https://github.com/clangd/clangd/issues/1559
+  sed 's|clang-tools-extra|clang/tools/extra|' \
+    clangd-handle-missing-ending-brace.patch | patch -Np2
 
   # Attempt to convert script to Python 3
   2to3 -wn --no-diffs \
@@ -130,10 +125,6 @@ package() {
 
   DESTDIR="$pkgdir" ninja install-distribution
   install -Dm644 ../LICENSE.TXT "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
-
-  # Remove llvm libs
-  rm "$pkgdir"/usr/lib/{libLLVMTestingSupport,libLLVMTestingAnnotations}.a
-  
 
   # Remove documentation sources
   rm -r "$pkgdir"/usr/share/doc/clang{,-tools}/html/{_sources,.buildinfo}

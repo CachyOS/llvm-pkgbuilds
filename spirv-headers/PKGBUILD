@@ -2,37 +2,26 @@
 # Maintainer: Felix Yan <felixonmars@archlinux.org>
 # Maintainer: Bruno Pagani <archange@archlinux.org>
 
-_pkg=SPIRV-Headers
 pkgname=spirv-headers
 epoch=1
 pkgver=1.3.283.0
-pkgrel=2
+pkgrel=1
 pkgdesc="SPIR-V Headers"
 arch=(any)
 url="https://www.khronos.org/registry/spir-v/"
 license=('MIT')
 makedepends=('cmake')
-source=(https://github.com/KhronosGroup/SPIRV-Headers/archive/refs/tags/vulkan-sdk-${pkgver}/${pkgname}-${pkgver}.tar.gz
-    #llvm18.patch::https://github.com/KhronosGroup/SPIRV-Headers/compare/vulkan-sdk-1.3.275.0...b73e168ca5e123dcf3dea8a34b19a5130f421ae1.patch
-  	#llvm17.patch::https://github.com/KhronosGroup/SPIRV-Headers/compare/sdk-1.3.261.1..38f39dae5baaa24431b24ac659054ebe972fa1e6.patch
-)
-sha512sums=('ce48d6655a15bdc969cf31376d93ddf3225ae5d2a55d47bdae2219a79c6e1f6f90b4eae1ab8df7309287e3dab32567559efd7bb779bb9d59651be9f5ccfd816e')
-
-prepare() {
-  cd ${_pkg}-vulkan-sdk-${pkgver}
-
-  #patch -Np1 -i ../llvm18.patch
-}
+source=(https://github.com/KhronosGroup/SPIRV-Headers/archive/refs/tags/vulkan-sdk-${pkgver}/${pkgname}-${pkgver}.tar.gz)
+sha512sums=('2bb52f532a8a07d6eaf7e348fc79e798511740e3f6b3fb2d1de8834335598f57555c638e07e906935e94a26a1f71704f5ca1dd0dcc8d099b2d722d217f9591fa')
 
 build() {
   cmake -B build \
-    -S ${_pkg}-vulkan-sdk-${pkgver} \
+    -S SPIRV-Headers-vulkan-sdk-${pkgver} \
     -DCMAKE_INSTALL_PREFIX=/usr
   make -C build
 }
 
 package() {
   make -C build DESTDIR="${pkgdir}" install
-  install -Dm644 ${_pkg}-vulkan-sdk-${pkgver}/LICENSE -t "${pkgdir}"/usr/share/licenses/${pkgname}/
+  install -Dm644 SPIRV-Headers-vulkan-sdk-${pkgver}/LICENSE -t "${pkgdir}"/usr/share/licenses/${pkgname}/
 }
-

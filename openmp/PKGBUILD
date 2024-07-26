@@ -1,33 +1,28 @@
-# Maintainer: Evangelos Foutras <evangelos@foutrelis.com>
+# Maintainer: Evangelos Foutras <foutrelis@archlinux.org>
 
 pkgname=openmp
 pkgver=18.1.8
-_pkgver=18.1.8
 pkgrel=1
 pkgdesc="LLVM OpenMP Runtime Library"
 arch=('x86_64')
 url="https://openmp.llvm.org/"
-license=('custom:Apache 2.0 with LLVM Exception')
+license=('Apache-2.0 WITH LLVM-exception')
 depends=('llvm-libs' 'libelf' 'libffi')
 makedepends=('llvm' 'clang' 'cmake' 'ninja')
 optdepends=('cuda: offloading to NVIDIA GPUs'
             'hsa-rocr: offloading to AMD GPUs')
 options=('!lto') # https://bugzilla.redhat.com/show_bug.cgi?id=1988155
-_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$_pkgver
+_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver
 source=($_source_base/openmp-$pkgver.src.tar.xz{,.sig}
-        $_source_base/llvm-$pkgver.src.tar.xz{,.sig}
-        $_source_base/cmake-$pkgver.src.tar.xz{,.sig}
-        $_source_base/third-party-$pkgver.src.tar.xz{,.sig})
-sha256sums=('3f168d38e7a37b928dcb94b33ce947f75d81eef6fa6a4f9d16b6dc5511c07358'
+        $_source_base/cmake-$pkgver.src.tar.xz{,.sig})
+sha256sums=('60ed57245e73894e4a2a89b15889f367bd906abfe6d3f92e1718223d4b496150'
             'SKIP'
-            '8986f29b634fdaa9862eedda78513969fe9788301c9f2d938f4c10a3e7a3e7ea'
+            '59badef592dd34893cd319d42b323aaa990b452d05c7180ff20f23ab1b41e837'
             'SKIP')
-validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A'  # Tom Stellard <tstellar@redhat.com>
-              'D574BD5D1D0E98895E3BF90044F2485E45D59042') # Tobias Hieta <tobias@hieta.se>
+validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A') # Tom Stellard <tstellar@redhat.com>
 
 prepare() {
   mv cmake{-$pkgver.src,}
-  mv third-party{-$pkgver.src,}
   cd openmp-$pkgver.src
   mkdir build
 }
@@ -39,7 +34,6 @@ build() {
     -G Ninja
     -DCMAKE_BUILD_TYPE=Release
     -DCMAKE_INSTALL_PREFIX=/usr
-    -DLLVM_MAIN_SRC_DIR="$srcdir/llvm-$pkgver.src"
     -DLIBOMP_INSTALL_ALIASES=OFF
   )
   cmake .. "${cmake_args[@]}"

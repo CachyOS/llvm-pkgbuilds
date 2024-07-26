@@ -1,32 +1,31 @@
-# Maintainer: Evangelos Foutras <evangelos@foutrelis.com>
+# Maintainer: Evangelos Foutras <foutrelis@archlinux.org>
 # Contributor: Jan "heftig" Steffens <jan.steffens@gmail.com>
 
 pkgname=lib32-clang
 pkgver=18.1.8
-_pkgver=18.1.8
 pkgrel=1
 pkgdesc="C language family frontend for LLVM (32-bit)"
 arch=('x86_64')
 url="https://clang.llvm.org/"
-license=('custom:Apache 2.0 with LLVM Exception')
+license=('Apache-2.0 WITH LLVM-exception')
 depends=('lib32-llvm-libs' 'gcc-multilib')
 makedepends=('lib32-llvm' 'cmake' 'ninja' 'python')
-_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$_pkgver
+_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver
 source=($_source_base/clang-$pkgver.src.tar.xz{,.sig}
-        $_source_base/clang-tools-extra-$pkgver.src.tar.xz{,.sig}
         $_source_base/llvm-$pkgver.src.tar.xz{,.sig}
         $_source_base/cmake-$pkgver.src.tar.xz{,.sig}
-        enable-fstack-protector-strong-by-default.patch
-        $_source_base/third-party-$pkgver.src.tar.xz{,.sig})
-sha256sums=('a6b673ef15377fb46062d164e8ddc4d05c348ff8968f015f7f4af03f51000067'
+        $_source_base/third-party-$pkgver.src.tar.xz{,.sig}
+        enable-fstack-protector-strong-by-default.patch)
+sha256sums=('5724fe0a13087d5579104cedd2f8b3bc10a212fb79a0fcdac98f4880e19f4519'
             'SKIP'
-            '4ad8b2cc8003c86d0078d15d987d84e3a739f24aae9033865c027abae93ee7a4'
+            'f68cf90f369bc7d0158ba70d860b0cb34dbc163d6ff0ebc6cfa5e515b9b2e28d'
             'SKIP'
-            '8986f29b634fdaa9862eedda78513969fe9788301c9f2d938f4c10a3e7a3e7ea'
+            '59badef592dd34893cd319d42b323aaa990b452d05c7180ff20f23ab1b41e837'
             'SKIP'
-            '7a9ce949579a3b02d4b91b6835c4fb45adc5f743007572fb0e28e6433e48f3a5')
-validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A'  # Tom Stellard <tstellar@redhat.com>
-              'D574BD5D1D0E98895E3BF90044F2485E45D59042') # Tobias Hieta <tobias@hieta.se>
+            'b76b810f3d3dc5d08e83c4236cb6e395aa9bd5e3ea861e8c319b216d093db074'
+            'SKIP'
+            'ef319e65f927718e1d3b1a23c480d686b1d292e2a0bf27229540964f9734117a')
+validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A') # Tom Stellard <tstellar@redhat.com>
 
 # Utilizing LLVM_DISTRIBUTION_COMPONENTS to avoid
 # installing static libraries; inspired by Gentoo
@@ -42,7 +41,7 @@ _get_distribution_components() {
         ;;
       clang|clangd|clang-*)
         ;;
-      clang*|findAllSymbols)
+      clang*|findAllSymbols|scan-build-py)
         continue
         ;;
     esac
@@ -51,11 +50,9 @@ _get_distribution_components() {
 }
 
 prepare() {
-  mv cmake{-$pkgver.src,}
-  mv third-party{-$pkgver.src,}
+  rename -v -- "-$pkgver.src" '' {cmake,third-party}-$pkgver.src
   cd clang-$pkgver.src
   mkdir build
-  mv "$srcdir/clang-tools-extra-$pkgver.src" tools/extra
   patch -Np2 -i ../enable-fstack-protector-strong-by-default.patch
 }
 
@@ -74,10 +71,12 @@ build() {
     -DCMAKE_CXX_FLAGS:STRING=-m32
     -DCMAKE_C_FLAGS:STRING=-m32
     -DENABLE_LINKER_BUILD_ID=ON
+    -DLLVM_BUILD_DOCS=OFF
     -DLLVM_BUILD_TESTS=OFF
-    -DLLVM_INCLUDE_TESTS=OFF
     -DLLVM_CONFIG="/usr/bin/llvm-config32"
     -DLLVM_ENABLE_RTTI=ON
+    -DLLVM_ENABLE_SPHINX=OFF
+    -DLLVM_EXTERNAL_LIT=/usr/bin/lit
     -DLLVM_INCLUDE_DOCS=OFF
     -DLLVM_LIBDIR_SUFFIX=32
     -DLLVM_LINK_LLVM_DYLIB=ON

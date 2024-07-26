@@ -2,29 +2,27 @@
 
 pkgname=wasi-compiler-rt
 pkgver=18.1.8
-_pkgver=18.1.8
-pkgrel=1
+pkgrel=2
 pkgdesc='WASI LLVM compiler runtime'
 arch=('any')
 url='https://compiler-rt.llvm.org/'
-license=('custom:Apache 2.0 with LLVM Exception')
+license=('Apache-2.0 WITH LLVM-exception')
 depends=('wasi-libc')
 makedepends=('cmake' 'ninja' 'llvm' 'clang' 'lld')
-source=(https://github.com/llvm/llvm-project/releases/download/llvmorg-${_pkgver}/compiler-rt-${pkgver}.src.tar.xz{,.sig}
-        https://github.com/llvm/llvm-project/releases/download/llvmorg-${_pkgver}/cmake-$pkgver.src.tar.xz{,.sig}
-        https://github.com/llvm/llvm-project/releases/download/llvmorg-${_pkgver}/llvm-$pkgver.src.tar.xz{,.sig}
+source=(https://github.com/llvm/llvm-project/releases/download/llvmorg-${pkgver}/compiler-rt-${pkgver}.src.tar.xz{,.sig}
+        https://github.com/llvm/llvm-project/releases/download/llvmorg-${pkgver}/cmake-$pkgver.src.tar.xz{,.sig}
         WASI.cmake
         wasi-toolchain.cmake)
-b2sums=('95780ea123a2bb3e8b697c9596ee2e9596859fd3747f013604936789893d931b5df66bff2feb12d2f984c52bd28e2c8f81180b100e6068a492c9b4571f25a4c4'
+b2sums=('6cfac94a35ecf228655aace45cf976a0370d30dab8293cd54b677db674a2e52c67fcdd4aa3dea33b33b7603541f29122d74e024a671a67087493766552f26d11'
         'SKIP'
-        '7a115905dc0d520aee30ac04ed76381667a40d7cd2b3d4790d0d62c9fd322a94bb4bf81a30b56d9f5a368a04d02c41538257cac6cbb4f0807cc9d1ee49c9f8e6'
+        '024a1fb1038176827acb1dc3971ddc66e3a5a199af2a2b99040dcfcf3e8962727f4da494e7dbea7f19101b8b4cfba3d9a024109b298638d36be1bf5d680c9ccf'
         'SKIP'
         'c829d807c257921fddb8c4d3752ad2291a2beb116d414dd31e34b7f6b01599d8c4807db87ef9930456ed8c9f30e8648e77028fa0b903c3a5ea840514f6022cf4'
         '74c63bb838bc2e6d7980370fb3d47f8fd2f1dd8b6dc82302c7cc0b80e0fb1e8e21c1c62d6de0b78e478fc22611a5867e52b1ef7a566796fe831fffd98b17c940')
 options=('staticlibs')
 validpgpkeys=(
   '474E22316ABF4785A88C6E8EA2C794A986419D8A' # Tom Stellard <tstellar@redhat.com>
-  'D574BD5D1D0E98895E3BF90044F2485E45D59042' # Tobias Hieta <tobias@hieta.se>
+  #'D574BD5D1D0E98895E3BF90044F2485E45D59042' # Tobias Hieta <tobias@hieta.se>
 )
 
 prepare() {
@@ -51,9 +49,8 @@ build() {
     -DCOMPILER_RT_DEFAULT_TARGET_ONLY=On \
     -DCOMPILER_RT_OS_DIR=wasi \
     -DWASI_SDK_PREFIX=/usr \
-    -DLLVM_MAIN_SRC_DIR="$srcdir/llvm-$pkgver.src" \
     -DCMAKE_C_FLAGS="-fno-exceptions --sysroot=/usr/share/wasi-sysroot" \
-    -DCMAKE_INSTALL_PREFIX=/usr/lib/clang/${pkgver}/ \
+    -DCMAKE_INSTALL_PREFIX=/usr/lib/clang/${pkgver%%.*}/ \
     compiler-rt-${pkgver}.src/lib/builtins
   cmake --build build -v
 }
@@ -61,6 +58,8 @@ build() {
 package() {
   DESTDIR="${pkgdir}" cmake --install build -v
 
+  ln -sr "${pkgdir}"/usr/lib/clang/${pkgver%%.*}/lib/{wasi,wasip1}
+  ln -sr "${pkgdir}"/usr/lib/clang/${pkgver%%.*}/lib/{wasi,wasip2}
+
   install -Dm644 compiler-rt-${pkgver}.src/LICENSE.TXT "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
 }
-

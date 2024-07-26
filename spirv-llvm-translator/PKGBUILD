@@ -3,7 +3,7 @@
 
 _srcname=SPIRV-LLVM-Translator
 pkgname=${_srcname,,}
-pkgver=18.1.1
+pkgver=18.1.2
 pkgrel=1
 pkgdesc="Tool and a library for bi-directional translation between SPIR-V and LLVM IR"
 arch=(x86_64)
@@ -13,23 +13,15 @@ depends=(llvm-libs spirv-tools)
 makedepends=(git cmake llvm spirv-headers)
 checkdepends=(python python-setuptools clang)
 # Current point in the used LLVM branch
-_commit=2d31bdaccf937c7b045d6a8ea705ebb52f2aaaa8
+_commit=3e602b4577ed85b4d5a48fd7d7df11c2f9b49d13
 source=(git+${url}.git#commit=$_commit)
-sha256sums=('SKIP')
+sha256sums=('53fe1e4e55f319d22baab551ce2ced9329579c4d3cd80fe64b2dea28638778f2')
 
-#pkgver() {
-#  cd ${_srcname}
-#  printf "18.0.0.r%s+%s"  "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
-#}
-
-#prepare() {
-#  cd ${_srcname}
-#  patch -Np1 -i ../0001-Fix-standalone-builds-with-LLVM_LINK_LLVM_DYLIB-ON.patch
-#}
+pkgver() {
+  git -C ${_srcname} describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./;s/-/+/'
+}
 
 build() {
-  #-DBASE_LLVM_VERSION="18.1.0"
-
   cmake -B build -S ${_srcname} \
     -G 'Unix Makefiles' \
     -DBUILD_SHARED_LIBS=ON \
@@ -50,6 +42,5 @@ check() {
 
 package() {
   DESTDIR="${pkgdir}" cmake --install build
-  install -Dm755 build/tools/llvm-spirv/llvm-spirv -t "${pkgdir}"/usr/bin
   install -Dm644 ${_srcname}/LICENSE.TXT -t "${pkgdir}"/usr/share/licenses/${pkgname}/
 }

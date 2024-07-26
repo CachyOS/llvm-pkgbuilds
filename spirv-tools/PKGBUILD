@@ -4,9 +4,8 @@
 pkgname=spirv-tools
 pkgver=2024.2
 # There was no release tag, just the release candidate
-#_tag="vulkan-sdk-1.3.275.0"
 _tag="${pkgver}.rc1"
-pkgrel=3
+pkgrel=1
 pkgdesc="API and commands for processing SPIR-V modules"
 arch=('x86_64')
 url="https://www.khronos.org/vulkan/"
@@ -14,18 +13,8 @@ license=('Apache-2.0')
 groups=(vulkan-devel)
 depends=('gcc-libs' 'sh')
 makedepends=('cmake' 'python' 'ninja' 'spirv-headers')
-_headers_commit=8b246ff75c6615ba4532fe4fde20f1be090c3764
-source=("${pkgname}-${pkgver}.tar.gz::https://github.com/KhronosGroup/SPIRV-Tools/archive/refs/tags/v${_tag}.tar.gz"
-        #rc.patch::https://github.com/KhronosGroup/SPIRV-Tools/compare/v2024.1..v2024.2.rc1.patch
-        git+https://github.com/KhronosGroup/SPIRV-Headers.git#commit=${_headers_commit})
-sha256sums=('aed90b51ce884ce3ac267acec75e785ee743a1e1fd294c25be33b49c5804d77c')
-
-prepare() {
-  ls -lah 
-  cd "SPIRV-Tools-${_tag}"
-
-  mv ../SPIRV-Headers external/spirv-headers
-}
+source=("${pkgname}-${pkgver}.tar.gz::https://github.com/KhronosGroup/SPIRV-Tools/archive/refs/tags/v${_tag}.tar.gz")
+sha256sums=('e433d40b5b4bf2bc3c819e34d7bf6194937df4d74e2f8dee8012bd8fd69e7f8a')
 
 build() {
   cd "SPIRV-Tools-${_tag}"
@@ -38,8 +27,8 @@ build() {
       -DCMAKE_BUILD_TYPE=None \
       -DSPIRV_WERROR=Off \
       -DBUILD_SHARED_LIBS=ON \
-      -DSPIRV_TOOLS_BUILD_STATIC=OFF
-      #-DSPIRV-Headers_SOURCE_DIR=/usr
+      -DSPIRV_TOOLS_BUILD_STATIC=OFF \
+      -DSPIRV-Headers_SOURCE_DIR=/usr
   cmake --build build
 }
 
@@ -53,4 +42,3 @@ package() {
 
   DESTDIR="${pkgdir}" cmake --install build
 }
-

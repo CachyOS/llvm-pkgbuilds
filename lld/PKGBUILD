@@ -1,39 +1,34 @@
-# Maintainer: Evangelos Foutras <evangelos@foutrelis.com>
+# Maintainer: Evangelos Foutras <foutrelis@archlinux.org>
 # Contributor: Jan "heftig" Steffens <jan.steffens@gmail.com>
 
 pkgname=lld
 pkgver=18.1.8
-_pkgver=18.1.8
 pkgrel=1
 pkgdesc="Linker from the LLVM project"
 arch=('x86_64')
 url="https://lld.llvm.org/"
-license=('custom:Apache 2.0 with LLVM Exception')
-depends=('llvm-libs')
-makedepends=('llvm' 'cmake' 'ninja' 'python-sphinx' 'python-myst-parser')
-options=('!lto') # LTO causes a couple of test failures
-_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$_pkgver
+license=('Apache-2.0 WITH LLVM-exception')
+depends=('llvm-libs' 'gcc-libs' 'zlib' 'zstd')
+makedepends=('llvm' 'cmake' 'ninja' 'python-sphinx')
+_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver
 source=($_source_base/lld-$pkgver.src.tar.xz{,.sig}
         $_source_base/llvm-$pkgver.src.tar.xz{,.sig}
         $_source_base/libunwind-$pkgver.src.tar.xz{,.sig}
-        $_source_base/cmake-$pkgver.src.tar.xz{,.sig}
-        $_source_base/third-party-$pkgver.src.tar.xz{,.sig})
-sha256sums=('dba5c70c3fe88b3a38b9180df82fbc9d1dfd55d68f41fddd6a90f9e17f8e5df9'
+        $_source_base/cmake-$pkgver.src.tar.xz{,.sig})
+sha256sums=('800e6805fb613eb8428f7a199f6d06c4c19f78f2db69157a129bb04fc1c99769'
             'SKIP'
-            '4ad8b2cc8003c86d0078d15d987d84e3a739f24aae9033865c027abae93ee7a4'
+            'f68cf90f369bc7d0158ba70d860b0cb34dbc163d6ff0ebc6cfa5e515b9b2e28d'
             'SKIP'
-            '406d199ae3a16add84017f40458a5e7c31f9412937fcb518715af0a0eeafbc0c'
+            'c31577d16978b0da0e472ef751f74893a5b459a7ea4a383b75f7ab93cf1e6877'
             'SKIP'
-            '8986f29b634fdaa9862eedda78513969fe9788301c9f2d938f4c10a3e7a3e7ea'
+            '59badef592dd34893cd319d42b323aaa990b452d05c7180ff20f23ab1b41e837'
             'SKIP')
-validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A'  # Tom Stellard <tstellar@redhat.com>
-              'D574BD5D1D0E98895E3BF90044F2485E45D59042') # Tobias Hieta <tobias@hieta.se>
+validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A') # Tom Stellard <tstellar@redhat.com>
 
 prepare() {
   # https://bugs.llvm.org/show_bug.cgi?id=49228
   mv libunwind{-$pkgver.src,}
 
-  mv third-party{-$pkgver.src,}
   mv cmake{-$pkgver.src,}
   cd lld-$pkgver.src
   mkdir build

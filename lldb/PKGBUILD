@@ -1,31 +1,27 @@
-# Maintainer: Evangelos Foutras <evangelos@foutrelis.com>
+# Maintainer: Evangelos Foutras <foutrelis@archlinux.org>
 # Contributor: Jan "heftig" Steffens <jan.steffens@gmail.com>
 
 pkgname=lldb
 pkgver=18.1.8
-_pkgver=18.1.8
 pkgrel=1
 pkgdesc="Next generation, high-performance debugger"
 arch=('x86_64')
 url="https://lldb.llvm.org/"
-license=('custom:Apache 2.0 with LLVM Exception')
-depends=('llvm-libs' 'clang' 'python' 'python-six')
+license=('Apache-2.0 WITH LLVM-exception')
+depends=('llvm-libs' 'clang' 'gcc-libs' 'zlib' 'xz' 'libedit' 'ncurses'
+         'libxml2' 'python')
 makedepends=('llvm' 'cmake' 'ninja' 'swig' 'python-sphinx')
-_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$_pkgver
+_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver
 source=($_source_base/lldb-$pkgver.src.tar.xz{,.sig}
-        $_source_base/cmake-$pkgver.src.tar.xz{,.sig}
-        $_source_base/llvm-$pkgver.src.tar.xz{,.sig}
-        $_source_base/third-party-$pkgver.src.tar.xz{,.sig})
-sha256sums=('f64d5533661c766a2ff97062af5a0523b9e2cd56aa3d95d9624c418e120d1427'
+        $_source_base/cmake-$pkgver.src.tar.xz{,.sig})
+sha256sums=('cac2db253ee3566c01774a888cc0ac3853f1e141c5c9962f04ee562bdb0af426'
             'SKIP'
-            '8986f29b634fdaa9862eedda78513969fe9788301c9f2d938f4c10a3e7a3e7ea'
+            '59badef592dd34893cd319d42b323aaa990b452d05c7180ff20f23ab1b41e837'
             'SKIP')
-validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A'  # Tom Stellard <tstellar@redhat.com>
-              'D574BD5D1D0E98895E3BF90044F2485E45D59042') # Tobias Hieta <tobias@hieta.se>
+validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A') # Tom Stellard <tstellar@redhat.com>
 
 prepare() {
   mv cmake{-$pkgver.src,}
-  mv third-party{-$pkgver.src,}
   cd lldb-$pkgver.src
   mkdir build
 }
@@ -33,15 +29,17 @@ prepare() {
 build() {
   cd lldb-$pkgver.src/build
 
+  # Build only minimal debug info to reduce size
+  CFLAGS=${CFLAGS/-g /-g1 }
+  CXXFLAGS=${CXXFLAGS/-g /-g1 }
+
   local cmake_args=(
     -G Ninja
     -DCMAKE_BUILD_TYPE=Release
     -DCMAKE_INSTALL_PREFIX=/usr
     -DCMAKE_SKIP_RPATH=ON
     -DCLANG_LINK_CLANG_DYLIB=ON
-    -DLLDB_USE_SYSTEM_SIX=1
     -DLLVM_ENABLE_SPHINX=ON
-    -DLLVM_MAIN_SRC_DIR="$srcdir/llvm-$pkgver.src"
     -DLLVM_LINK_LLVM_DYLIB=ON
   )
   cmake .. "${cmake_args[@]}"
@@ -55,9 +53,6 @@ package() {
   install -Dm644 ../LICENSE.TXT "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 
   install -Dm644 docs/man/lldb.1 "$pkgdir/usr/share/man/man1/lldb.1"
-
-  # remove leftover
-  rm "$pkgdir/usr/lib/libLLVMTestingSupport.a"
 
   # Compile Python scripts
   python3 -m compileall "$pkgdir"
