@@ -2,8 +2,8 @@
 # Contributor: Jan "heftig" Steffens <jan.steffens@gmail.com>
 
 pkgname=('llvm' 'llvm-libs')
-pkgver=18.1.8
-pkgrel=4
+pkgver=19.1.0
+pkgrel=1
 arch=('x86_64')
 url="https://llvm.org/"
 license=('Apache-2.0 WITH LLVM-exception')
@@ -14,15 +14,13 @@ options=('staticlibs' '!lto') # tools/llvm-shlib/typeids.test fails with LTO
 _source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver
 source=($_source_base/llvm-$pkgver.src.tar.xz{,.sig}
         $_source_base/cmake-$pkgver.src.tar.xz{,.sig}
-        $_source_base/third-party-$pkgver.src.tar.xz{,.sig}
-        $pkgname-SelectionDAG.patch::https://github.com/llvm/llvm-project/commit/46505b3cbfc5.patch)
-sha256sums=('f68cf90f369bc7d0158ba70d860b0cb34dbc163d6ff0ebc6cfa5e515b9b2e28d'
+        $_source_base/third-party-$pkgver.src.tar.xz{,.sig})
+sha256sums=('a8b141cbfa13f50d84ce545899bd311aaa60d59dfbf7f3a0cf84f25badc1544d'
             'SKIP'
-            '59badef592dd34893cd319d42b323aaa990b452d05c7180ff20f23ab1b41e837'
+            'dc78b6a9ac8a097ca6ac0f23c06821d65e6ea3bf666026f529994c1d01056ae7'
             'SKIP'
-            'b76b810f3d3dc5d08e83c4236cb6e395aa9bd5e3ea861e8c319b216d093db074'
-            'SKIP'
-            '62cc0a323ebe6a61a1302605d42a28ce812dbeae186e23515b333211e3de008a')
+            'f521e6cdb6598d777c6120d086aee3993f182ab38bc59ce4a59c48fae4839b8c'
+            'SKIP')
 validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A') # Tom Stellard <tstellar@redhat.com>
 
 # Utilizing LLVM_DISTRIBUTION_COMPONENTS to avoid
@@ -43,15 +41,14 @@ _get_distribution_components() {
       # used by lldb
       LLVMDebuginfod)
         ;;
+      # libraries needed for building unittests
+      llvm_gtest|llvm_gtest_main)
+        ;;
       # testing libraries
       LLVMTestingAnnotations|LLVMTestingSupport)
         ;;
       # exclude static libraries
       LLVM*)
-        continue
-        ;;
-      # exclude llvm-exegesis (doesn't seem useful without libpfm)
-      llvm-exegesis)
         continue
         ;;
     esac
@@ -63,9 +60,6 @@ prepare() {
   rename -v -- "-$pkgver.src" '' {cmake,third-party}-$pkgver.src
   cd llvm-$pkgver.src
   mkdir build
-
-  # https://github.com/llvm/llvm-project/issues/82431
-  sed '/^diff.*inline-asm-memop.ll/,$d' ../$pkgname-SelectionDAG.patch | patch -Np2
 
   # Remove CMake find module for zstd; breaks if out of sync with upstream zstd
   rm cmake/modules/Findzstd.cmake

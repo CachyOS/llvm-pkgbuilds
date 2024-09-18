@@ -4,7 +4,7 @@
 
 pkgname=qt6-tools
 pkgver=6.7.2
-pkgrel=2
+pkgrel=3.1
 arch=(x86_64)
 url='https://www.qt.io'
 license=(GPL3 LGPL3 FDL custom)
@@ -27,7 +27,7 @@ groups=(qt6)
 _pkgfn=${pkgname/6-/}
 source=(git+https://code.qt.io/qt/$_pkgfn#tag=v$pkgver
         git+https://code.qt.io/playground/qlitehtml)
-sha256sums=('3bfa78a1ce46c5c0e3f1bfba7c8571d1c77783da7efb4ed7bcfd896e03a2bf7c'
+sha256sums=('e9f087ff802c647a55a9f11e0b654c4a33ce10d56d5371c8ac7f8b234e1bd083'
             'SKIP')
 
 prepare() {
@@ -37,6 +37,10 @@ prepare() {
   git -c protocol.file.allow=always submodule update
 
   git cherry-pick -n 46ffaed90df8c14d67b4b16fdf5e0b87ab227c88 # Fix crash in Designer
+
+  git cherry-pick -n 687fc1601863ae7a67897bc3590b33bd3bdcc3bc # Fix deprecation warning with llvm 18
+  git cherry-pick -n a2f478b20f369132de1e67b30716d5f070d7bf80 # Adapt changes for LLVM 19
+  git cherry-pick -n 4a368a06afa5929d8674d2e94c2d7cbd6ad85d4e # Adapt changes for LLVM 19
 }
 
 build() {

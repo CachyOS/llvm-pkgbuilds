@@ -2,8 +2,8 @@
 # Contributor: Jan "heftig" Steffens <jan.steffens@gmail.com>
 
 pkgname=clang
-pkgver=18.1.8
-pkgrel=2
+pkgver=19.1.0
+pkgrel=1
 pkgdesc="C language family frontend for LLVM"
 arch=('x86_64')
 url="https://clang.llvm.org/"
@@ -24,17 +24,17 @@ source=($_source_base/clang-$pkgver.src.tar.xz{,.sig}
         $_source_base/third-party-$pkgver.src.tar.xz{,.sig}
         clangd-handle-missing-ending-brace.patch::https://github.com/llvm/llvm-project/commit/9d1dada57741.patch
         enable-fstack-protector-strong-by-default.patch)
-sha256sums=('5724fe0a13087d5579104cedd2f8b3bc10a212fb79a0fcdac98f4880e19f4519'
+sha256sums=('03c3be44ff8e602213222fb99645c239965623d2bf2a6e4d210249520112377e'
             'SKIP'
-            'e58877fcd95ed106824bd1a31276dd17ed0c53adcd60ca75289eac0654f0a7f1'
+            'eec4beef68f7135011995684d47ac02e0d3781618abb2a6fe18a8dcef6db586f'
             'SKIP'
-            'f68cf90f369bc7d0158ba70d860b0cb34dbc163d6ff0ebc6cfa5e515b9b2e28d'
+            'a8b141cbfa13f50d84ce545899bd311aaa60d59dfbf7f3a0cf84f25badc1544d'
             'SKIP'
-            '59badef592dd34893cd319d42b323aaa990b452d05c7180ff20f23ab1b41e837'
+            'dc78b6a9ac8a097ca6ac0f23c06821d65e6ea3bf666026f529994c1d01056ae7'
             'SKIP'
-            'b76b810f3d3dc5d08e83c4236cb6e395aa9bd5e3ea861e8c319b216d093db074'
+            'f521e6cdb6598d777c6120d086aee3993f182ab38bc59ce4a59c48fae4839b8c'
             'SKIP'
-            '0d4dc477f5a28f9f16639dc094b6d9bc14228d5de771547394799d2d5f8cd1df'
+            'c102e8a6a2adb0e8729865ffb8799b22bb8a9bdf0f421991880fa4393378370a'
             'ef319e65f927718e1d3b1a23c480d686b1d292e2a0bf27229540964f9734117a')
 validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A') # Tom Stellard <tstellar@redhat.com>
 

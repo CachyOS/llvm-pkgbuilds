@@ -2,10 +2,10 @@
 # Contributor: Andrea Scarpino <andrea@archlinux.org>
 
 pkgname=qt5-tools
-_basever=5.15.14
-pkgver=5.15.14+kde+r4
-pkgrel=2
-_commit=f82ed367d1b80b69d738cfcde534b75854a45476
+_basever=5.15.15
+pkgver=5.15.15+kde+r3
+pkgrel=2.1
+_commit=0378d3e541f40bc9c5433eac70d3949ddff9cfc4
 arch=('x86_64')
 url='https://www.qt.io'
 license=('GPL3' 'LGPL3' 'FDL' 'custom')
@@ -18,7 +18,7 @@ conflicts=('qtchooser')
 _pkgfqn=${pkgname/5-/}
 source=(kde-$_pkgfqn::git+https://invent.kde.org/qt/qt/$_pkgfqn#commit=$_commit
         {assistant,designer,linguist,qdbusviewer}.desktop)
-sha256sums=('d27772cc0f51053dde0b3cdb665f50a8e504dab35a2ace4e691002ff5079ef07'
+sha256sums=('0af01c5dee5c2534ac89cf082bd6049bb662ecf6bc07524793ae4a4a40aac1cb'
             '8092d6d846e39632107b14726fa112862d800e929ef10f05f2a284dbda9b53c4'
             '92f3e5dc8bc416e02893c38a05287238853e0c20732df1e62d6a672744a34e7c'
             '15781519115e36d2c67c12ee6bc636425cd445072f43cb8bdd1364cfacbe4c45'
