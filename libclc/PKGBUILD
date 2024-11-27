@@ -1,26 +1,27 @@
 # Maintainer: Laurent Carlier <lordheavym@gmail.com>
 
 pkgname=libclc
-pkgver=19.1.0
+pkgver=19.1.4
+_pkgver=19.1.4
 pkgrel=1
 pkgdesc="Library requirements of the OpenCL C programming language"
 arch=('any')
 url="https://libclc.llvm.org/"
 license=('MIT')
 makedepends=('clang' 'llvm' 'cmake' 'ninja' 'python' 'spirv-llvm-translator')
-_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver
-source=($_source_base/libclc-$pkgver.src.tar.xz{,.sig})
-sha256sums=('85bccf65c429a22367c73accac7c4c2d9586f1b2ce036b3395b3debc3867e932'
+_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$_pkgver
+source=($_source_base/libclc-$_pkgver.src.tar.xz{,.sig})
+sha256sums=('905bd59e9f810d6bd0ae6874725a8f8a3c91cb416199c03f2b98b57437cfb32e'
             'SKIP')
 validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A') # Tom Stellard <tstellar@redhat.com>
 
 prepare() {
-  cd $pkgname-$pkgver.src
+  cd $pkgname-$_pkgver.src
   mkdir build
 }
 
 build() {
-  cd $pkgname-$pkgver.src/build
+  cd $pkgname-$_pkgver.src/build
 
   cmake .. -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
@@ -29,7 +30,7 @@ build() {
 }
 
 package() {
-  cd $pkgname-$pkgver.src/build
+  cd $pkgname-$_pkgver.src/build
 
   DESTDIR="$pkgdir" ninja install
   install -Dm644 ../LICENSE.TXT "$pkgdir/usr/share/licenses/$pkgname/LICENSE"

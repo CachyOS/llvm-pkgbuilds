@@ -3,11 +3,15 @@
 # Contributor: Andrea Scarpino <andrea@archlinux.org>
 
 pkgname=qt6-tools
-pkgver=6.7.2
-pkgrel=3.1
+_pkgver=6.8.0
+pkgver=6.8.0
+pkgrel=1.2
 arch=(x86_64)
 url='https://www.qt.io'
-license=(GPL3 LGPL3 FDL custom)
+license=(GPL-3.0-only
+         LGPL-3.0-only
+         LicenseRef-Qt-Commercial
+         Qt-GPL-exception-1.0)
 pkgdesc='A cross-platform application and UI framework (Development Tools, QtHelp)'
 depends=(gcc-libs
          glibc
@@ -25,9 +29,9 @@ optdepends=('clang: for qdoc and lupdate'
             'qt6-declarative: for qdoc and lupdate')
 groups=(qt6)
 _pkgfn=${pkgname/6-/}
-source=(git+https://code.qt.io/qt/$_pkgfn#tag=v$pkgver
+source=(git+https://code.qt.io/qt/$_pkgfn#tag=v$_pkgver
         git+https://code.qt.io/playground/qlitehtml)
-sha256sums=('e9f087ff802c647a55a9f11e0b654c4a33ce10d56d5371c8ac7f8b234e1bd083'
+sha256sums=('74659933b95b94a78b9ec24e6f24633473c4dfa180b34531abf847768ccd8822'
             'SKIP')
 
 prepare() {
@@ -36,9 +40,7 @@ prepare() {
   git submodule set-url src/assistant/qlitehtml "$srcdir"/qlitehtml
   git -c protocol.file.allow=always submodule update
 
-  git cherry-pick -n 46ffaed90df8c14d67b4b16fdf5e0b87ab227c88 # Fix crash in Designer
-
-  git cherry-pick -n 687fc1601863ae7a67897bc3590b33bd3bdcc3bc # Fix deprecation warning with llvm 18
+  #git cherry-pick -n 687fc1601863ae7a67897bc3590b33bd3bdcc3bc # Fix deprecation warning with llvm 18
   git cherry-pick -n a2f478b20f369132de1e67b30716d5f070d7bf80 # Adapt changes for LLVM 19
   git cherry-pick -n 4a368a06afa5929d8674d2e94c2d7cbd6ad85d4e # Adapt changes for LLVM 19
 }

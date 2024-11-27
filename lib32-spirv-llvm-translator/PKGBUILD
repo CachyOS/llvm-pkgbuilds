@@ -4,7 +4,7 @@
 
 _srcname=SPIRV-LLVM-Translator
 pkgname=lib32-${_srcname,,}
-pkgver=19.1.0
+pkgver=19.1.1
 pkgrel=1
 pkgdesc="Tool and a library for bi-directional translation between SPIR-V and LLVM IR (32-bit)"
 arch=(x86_64)
@@ -13,13 +13,13 @@ license=(LicenseRef-custom)
 depends=(lib32-llvm-libs lib32-spirv-tools ${pkgname#lib32-})
 makedepends=(git cmake llvm lib32-llvm spirv-headers)
 # Current point in the used LLVM branch
-_commit=1b9ab0ad27e2cf06beaacd5d42d4cf1447e104b5
+_commit=90a976491d3847657396456e0e94d7dc48d35996
 source=(git+${url}.git#commit=$_commit)
-sha256sums=('43e56c08cc22d940adc3bcad540b715114f2791fdd18ed2a3d9227ea553b3b5f')
+sha256sums=('494e7c753909ac362836e78d3d40825f6253466afc567e660f0792d266e8717d')
 
-pkgver() {
-  git -C ${_srcname} describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./;s/-/+/'
-}
+#pkgver() {
+#  git -C ${_srcname} describe --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./;s/-/+/'
+#}
 
 build() {
   export PKG_CONFIG=i686-pc-linux-gnu-pkg-config

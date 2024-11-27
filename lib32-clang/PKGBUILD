@@ -2,7 +2,8 @@
 # Contributor: Jan "heftig" Steffens <jan.steffens@gmail.com>
 
 pkgname=lib32-clang
-pkgver=19.1.0
+pkgver=19.1.4
+_pkgver=19.1.4
 pkgrel=1
 pkgdesc="C language family frontend for LLVM (32-bit)"
 arch=('x86_64')
@@ -10,19 +11,19 @@ url="https://clang.llvm.org/"
 license=('Apache-2.0 WITH LLVM-exception')
 depends=('lib32-llvm-libs' 'gcc-multilib')
 makedepends=('lib32-llvm' 'cmake' 'ninja' 'python')
-_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver
-source=($_source_base/clang-$pkgver.src.tar.xz{,.sig}
-        $_source_base/llvm-$pkgver.src.tar.xz{,.sig}
-        $_source_base/cmake-$pkgver.src.tar.xz{,.sig}
-        $_source_base/third-party-$pkgver.src.tar.xz{,.sig}
+_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$_pkgver
+source=($_source_base/clang-$_pkgver.src.tar.xz{,.sig}
+        $_source_base/llvm-$_pkgver.src.tar.xz{,.sig}
+        $_source_base/cmake-$_pkgver.src.tar.xz{,.sig}
+        $_source_base/third-party-$_pkgver.src.tar.xz{,.sig}
         enable-fstack-protector-strong-by-default.patch)
-sha256sums=('03c3be44ff8e602213222fb99645c239965623d2bf2a6e4d210249520112377e'
+sha256sums=('5724fe0a13087d5579104cedd2f8b3bc10a212fb79a0fcdac98f4880e19f4519'
             'SKIP'
-            'a8b141cbfa13f50d84ce545899bd311aaa60d59dfbf7f3a0cf84f25badc1544d'
+            'f68cf90f369bc7d0158ba70d860b0cb34dbc163d6ff0ebc6cfa5e515b9b2e28d'
             'SKIP'
-            'dc78b6a9ac8a097ca6ac0f23c06821d65e6ea3bf666026f529994c1d01056ae7'
+            '59badef592dd34893cd319d42b323aaa990b452d05c7180ff20f23ab1b41e837'
             'SKIP'
-            'f521e6cdb6598d777c6120d086aee3993f182ab38bc59ce4a59c48fae4839b8c'
+            'b76b810f3d3dc5d08e83c4236cb6e395aa9bd5e3ea861e8c319b216d093db074'
             'SKIP'
             'ef319e65f927718e1d3b1a23c480d686b1d292e2a0bf27229540964f9734117a')
 validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A') # Tom Stellard <tstellar@redhat.com>
@@ -50,14 +51,14 @@ _get_distribution_components() {
 }
 
 prepare() {
-  rename -v -- "-$pkgver.src" '' {cmake,third-party}-$pkgver.src
-  cd clang-$pkgver.src
+  rename -v -- "-$_pkgver.src" '' {cmake,third-party}-$_pkgver.src
+  cd clang-$_pkgver.src
   mkdir build
   patch -Np2 -i ../enable-fstack-protector-strong-by-default.patch
 }
 
 build() {
-  cd "$srcdir/clang-$pkgver.src/build"
+  cd "$srcdir/clang-$_pkgver.src/build"
 
   export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
 
@@ -80,7 +81,7 @@ build() {
     -DLLVM_INCLUDE_DOCS=OFF
     -DLLVM_LIBDIR_SUFFIX=32
     -DLLVM_LINK_LLVM_DYLIB=ON
-    -DLLVM_MAIN_SRC_DIR="$srcdir/llvm-$pkgver.src"
+    -DLLVM_MAIN_SRC_DIR="$srcdir/llvm-$_pkgver.src"
   )
 
   cmake .. "${cmake_args[@]}"
@@ -93,7 +94,7 @@ build() {
 }
 
 package() {
-  cd clang-$pkgver.src/build
+  cd clang-$_pkgver.src/build
 
   DESTDIR="$pkgdir" ninja install-distribution
   rm -rf "$pkgdir"/usr/{bin,include,lib,libexec,share}

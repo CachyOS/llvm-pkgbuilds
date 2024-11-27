@@ -12,10 +12,13 @@ groups=(vulkan-devel)
 depends=('gcc-libs' 'sh')
 makedepends=('cmake' 'python' 'ninja' 'spirv-headers')
 source=("${pkgname}-${pkgver}.tar.gz::https://github.com/KhronosGroup/SPIRV-Tools/archive/refs/tags/v${pkgver}.tar.gz")
+	#llvm19.patch::https://github.com/KhronosGroup/SPIRV-Tools/compare/v2024.3...b64a423b44f448df5464978173e28be12069b73c.patch)
 sha256sums=('e433d40b5b4bf2bc3c819e34d7bf6194937df4d74e2f8dee8012bd8fd69e7f8a')
 
 build() {
   cd "SPIRV-Tools-${pkgver}"
+
+  #patch -Np1 -i ../llvm19.patch
 
   cmake \
       -Bbuild \

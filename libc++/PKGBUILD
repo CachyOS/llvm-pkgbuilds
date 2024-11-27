@@ -5,7 +5,8 @@
 
 pkgbase=libc++
 pkgname=(libc++ libc++abi)
-pkgver=19.1.0
+pkgver=19.1.4
+_pkgver=19.1.4
 pkgrel=1
 pkgdesc="LLVM C++ standard library"
 url="https://libcxx.llvm.org/"
@@ -15,14 +16,14 @@ depends=('gcc-libs' 'glibc')
 makedepends=('clang' 'cmake' 'ninja' 'python')
 checkdepends=('llvm')
 options=('!lto' 'staticlibs')
-source=("https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver/llvm-project-$pkgver.src.tar.xz"{,.sig})
-sha512sums=('396b34886f8442eeb5bc23152e8c2577e834d88f1d21a67829f9ca651b77c5ceb32df4e70c34dc1e6fea24abe45fa00f08502628de25fdbf32864f5b9066d23d'
+source=("https://github.com/llvm/llvm-project/releases/download/llvmorg-$_pkgver/llvm-project-$_pkgver.src.tar.xz"{,.sig})
+sha512sums=('25eeee9984c8b4d0fbc240df90f33cbb000d3b0414baff5c8982beafcc5e59e7ef18f6f85d95b3a5f60cb3d4cd4f877c80487b5768bc21bc833f107698ad93db'
             'SKIP')
 validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A') # Tom Stellard <tstellar@redhat.com>
 
 prepare() {
   mkdir -p build
-  sed -i 's/CREDITS.TXT/CREDITS/' llvm-project-$pkgver.src/libcxx{,abi}/LICENSE.TXT
+  sed -i 's/CREDITS.TXT/CREDITS/' llvm-project-$_pkgver.src/libcxx{,abi}/LICENSE.TXT
 }
 
 build() {
@@ -39,7 +40,7 @@ build() {
     -DLLVM_ENABLE_PIC=ON \
     -DLIBCXX_INSTALL_MODULES=ON \
     -DLIBCXXABI_USE_LLVM_UNWINDER=OFF \
-    ../llvm-project-$pkgver.src/runtimes
+    ../llvm-project-$_pkgver.src/runtimes
   ninja cxx cxxabi
 }
 
@@ -56,8 +57,8 @@ package_libc++ () {
 
   DESTDIR="$pkgdir" ninja -C build install-cxx
 
-  install -Dm0644 llvm-project-$pkgver.src/libcxx/CREDITS.TXT "$pkgdir"/usr/share/licenses/"$pkgname"/CREDITS
-  install -Dm0644 llvm-project-$pkgver.src/libcxx/LICENSE.TXT "$pkgdir"/usr/share/licenses/"$pkgname"/LICENSE
+  install -Dm0644 llvm-project-$_pkgver.src/libcxx/CREDITS.TXT "$pkgdir"/usr/share/licenses/"$pkgname"/CREDITS
+  install -Dm0644 llvm-project-$_pkgver.src/libcxx/LICENSE.TXT "$pkgdir"/usr/share/licenses/"$pkgname"/LICENSE
 }
 
 package_libc++abi() {
@@ -65,6 +66,6 @@ package_libc++abi() {
 
   DESTDIR="$pkgdir" ninja -C build install-cxxabi
 
-  install -Dm0644 llvm-project-$pkgver.src/libcxxabi/CREDITS.TXT "$pkgdir"/usr/share/licenses/"$pkgname"/CREDITS
-  install -Dm0644 llvm-project-$pkgver.src/libcxxabi/LICENSE.TXT "$pkgdir"/usr/share/licenses/"$pkgname"/LICENSE
+  install -Dm0644 llvm-project-$_pkgver.src/libcxxabi/CREDITS.TXT "$pkgdir"/usr/share/licenses/"$pkgname"/CREDITS
+  install -Dm0644 llvm-project-$_pkgver.src/libcxxabi/LICENSE.TXT "$pkgdir"/usr/share/licenses/"$pkgname"/LICENSE
 }

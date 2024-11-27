@@ -1,7 +1,8 @@
 # Maintainer: Evangelos Foutras <foutrelis@archlinux.org>
 
 pkgname=openmp
-pkgver=19.1.0
+pkgver=19.1.4
+_pkgver=19.1.4
 pkgrel=1
 pkgdesc="LLVM OpenMP Runtime Library"
 arch=('x86_64')
@@ -12,23 +13,23 @@ makedepends=('llvm' 'clang' 'cmake' 'ninja' 'python')
 optdepends=('cuda: offloading to NVIDIA GPUs'
             'hsa-rocr: offloading to AMD GPUs')
 options=('!lto') # https://bugzilla.redhat.com/show_bug.cgi?id=1988155
-_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$pkgver
-source=($_source_base/openmp-$pkgver.src.tar.xz{,.sig}
-        $_source_base/cmake-$pkgver.src.tar.xz{,.sig})
-sha256sums=('c036fd95c8eeea8d7bce4196ee20cc5c5a99702d6ec7f0bb19828e315bc3a9ac'
+_source_base=https://github.com/llvm/llvm-project/releases/download/llvmorg-$_pkgver
+source=($_source_base/openmp-$_pkgver.src.tar.xz{,.sig}
+        $_source_base/cmake-$_pkgver.src.tar.xz{,.sig})
+sha256sums=('60ed57245e73894e4a2a89b15889f367bd906abfe6d3f92e1718223d4b496150'
             'SKIP'
-            'dc78b6a9ac8a097ca6ac0f23c06821d65e6ea3bf666026f529994c1d01056ae7'
+            '59badef592dd34893cd319d42b323aaa990b452d05c7180ff20f23ab1b41e837'
             'SKIP')
 validpgpkeys=('474E22316ABF4785A88C6E8EA2C794A986419D8A') # Tom Stellard <tstellar@redhat.com>
 
 prepare() {
-  mv cmake{-$pkgver.src,}
-  cd openmp-$pkgver.src
+  mv cmake{-$_pkgver.src,}
+  cd openmp-$_pkgver.src
   mkdir build
 }
 
 build() {
-  cd openmp-$pkgver.src/build
+  cd openmp-$_pkgver.src/build
 
   local cmake_args=(
     -G Ninja
@@ -41,7 +42,7 @@ build() {
 }
 
 package() {
-  cd openmp-$pkgver.src/build
+  cd openmp-$_pkgver.src/build
 
   DESTDIR="$pkgdir" ninja install
   install -Dm644 ../LICENSE.TXT "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
